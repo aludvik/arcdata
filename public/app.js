@@ -85,8 +85,8 @@ function runSearch() {
 async function load() {
   try {
     const [itemsRes, columnsRes] = await Promise.all([
-      fetch("items.json"),
-      fetch("columns.json"),
+      fetch("data/items.json"),
+      fetch("data/columns.json"),
     ]);
     if (!itemsRes.ok || !columnsRes.ok) throw new Error("Failed to load data");
     items = await itemsRes.json();

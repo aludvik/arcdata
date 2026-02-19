@@ -13,7 +13,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
   - Responsibilities:
     - Clone or update the `arcraiders-data` repo into `repos/arcraiders-data/`.
     - Read and normalize all item JSON files from `repos/arcraiders-data/items/`.
-    - Emit a compact, query-friendly model into the `public/` directory.
+    - Emit a compact, query-friendly model into the `public/data/` directory.
 
 - **Static web app (frontend)**  
   - Files: `public/index.html`, `public/app.js`, `public/styles.css`  
@@ -71,22 +71,22 @@ This document describes the current architecture of the **Arc Raiders Item Brows
        - Arrays are preserved as arrays (and rendered as JSON strings in the UI).
 
 3. **Emit derived artifacts**
-   - After processing all items, the builder writes:
-     - `public/items.json` – array of row objects corresponding to items.
-     - `public/columns.json` – sorted unique set of column names (top-level keys).
+   - After processing all items, the builder writes under `public/data/`:
+     - `items.json` – array of row objects corresponding to items.
+     - `columns.json` – sorted unique set of column names (top-level keys).
        - Columns are sorted with a small priority list first:  
          `["id", "name", "type", "rarity", "value", "weightKg", "stackSize"]`.
-     - `public/meta.json` – small metadata object:
+     - `meta.json` – small metadata object:
        - `lang`: language used for localization (from `ARC_DATA_LANG`).
        - `itemCount`: number of items exported.
        - `columnCount`: number of columns.
 
 4. **Serve and display**
    - `scripts/serve.js` runs a minimal HTTP server that serves the `public/` directory on port `3777`.
-   - The frontend loads:
-     - `items.json` – all rows.
-     - `columns.json` – table header definitions.
-     - `meta.json` – to potentially drive UI or debugging.
+   - The frontend loads (from `/data/`):
+     - `data/items.json` – all rows.
+     - `data/columns.json` – table header definitions.
+     - `data/meta.json` – to potentially drive UI or debugging.
 
 ### Frontend Behavior
 

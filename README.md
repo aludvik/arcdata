@@ -42,11 +42,11 @@ Then open `http://localhost:3777` in your browser to use the app.
     - Resolves localized fields (`name`, `description`, etc.) to a **single language**.
     - Formats structured fields like `effects` and `recipe` into human-readable `"key: value"` lists.
   - The processed result is written to:
-    - `public/items.json` – array of rows shown in the UI.
-    - `public/columns.json` – list of column names.
-    - `public/meta.json` – metadata (e.g. chosen language, item count).
+    - `public/data/items.json` – array of rows shown in the UI.
+    - `public/data/columns.json` – list of column names.
+    - `public/data/meta.json` – metadata (e.g. chosen language, item count).
 
-The frontend (`public/index.html` + `public/app.js`) loads these JSON files, renders a table with dynamic columns, and applies client-side filtering as you type into the search box.
+The frontend (`public/index.html` + `public/app.js`) loads these JSON files from `public/data/`, renders a table with dynamic columns, and applies client-side filtering as you type into the search box.
 
 ### Localization
 

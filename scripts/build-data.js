@@ -15,7 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_URL = "https://github.com/RaidTheory/arcraiders-data.git";
 const REPO_DIR = path.join(__dirname, "..", "repos", "arcraiders-data");
 const ITEMS_DIR = "items";
-const OUT_DIR = path.join(__dirname, "..", "public");
+const OUT_DIR = path.join(__dirname, "..", "public", "data");
 
 /** Locale codes used in arcraiders-data (for detecting locale maps). */
 const LOCALE_CODES = new Set([
