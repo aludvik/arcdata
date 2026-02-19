@@ -1,0 +1,38 @@
+---
+description: Core project guidance for the Arc Raiders item browser
+alwaysApply: true
+---
+
+## Project Context
+
+- This project is a **local web app** for browsing ARC Raiders item data using a spreadsheet-style table and keyword search.
+- All item data comes from the community repo `RaidTheory/arcraiders-data`; the clone lives under `repos/arcraiders-data/` and is treated as a cache (never committed).
+
+## Data Pipeline Expectations
+
+- Prefer the **local cloned repo** in `repos/arcraiders-data` over calling GitHub HTTP APIs directly when reading item data.
+- The build step (`scripts/build-data.js`, `npm run build-data`) must:
+  - Use only **top-level item keys** as columns in `public/items.json` / `public/columns.json`.
+  - Resolve localized fields (e.g. `name`, `description`) to a **single language** using `ARC_DATA_LANG` (default `en`) with sensible fallbacks.
+  - Represent structured fields as strings instead of exploding them into many columns:
+    - `effects`: a multi-line list in the form `"Effect Name: value"` (localized name + numeric/text value).
+    - `recipe`, `recyclesInto`, `salvagesInto`: multi-line `"key: value"` lists (e.g. `chemicals: 3`).
+- When changing the data model or adding new derived fields, avoid reintroducing per-locale columns (e.g. `name.en`, `description.de`) or deep dotted paths (e.g. `effects.Duration.value`) unless there is a very strong reason.
+
+## Frontend & Runtime Conventions
+
+- The frontend is **vanilla HTML/CSS/JS** served from `public/` and should remain lightweight; prefer incremental enhancements over introducing a heavy framework unless the scope clearly justifies it.
+- The static server (`scripts/serve.js`, `npm run start` / `npm run dev`) is the standard way to run the app locally; assume the UI is reached at `http://localhost:3777`.
+- The table UI:
+  - Reads `items.json` and `columns.json`.
+  - Treats each row as a flat object keyed by column name.
+  - Implements search by stringifying all values for a row and matching all space-separated query terms.
+
+## Documentation & Maintenance
+
+- Keep `README.md` and `ARCHITECTURE.md` in sync with any significant changes to:
+  - The data ingestion pipeline.
+  - Column semantics (especially localization and `effects`/`recipe` formatting).
+  - How the frontend loads or filters data.
+- When adding new capabilities that affect agents (e.g. new scripts, config formats, or conventions), prefer updating or adding rules in `.cursor/rules/` so future agents inherit that context automatically.
+

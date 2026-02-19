@@ -1,0 +1,129 @@
+## Architecture Overview
+
+This document describes the current architecture of the **Arc Raiders Item Browser** project: tech stack, data flow, and how the main components interact.
+
+### High-Level Components
+
+- **Data source (external)**  
+  - Git repository: `RaidTheory/arcraiders-data`  
+  - Contains structured JSON data for ARC Raiders items in `items/`.
+
+- **Data builder (local, Node.js)**  
+  - Script: `scripts/build-data.js`  
+  - Responsibilities:
+    - Clone or update the `arcraiders-data` repo into `repos/arcraiders-data/`.
+    - Read and normalize all item JSON files from `repos/arcraiders-data/items/`.
+    - Emit a compact, query-friendly model into the `public/` directory.
+
+- **Static web app (frontend)**  
+  - Files: `public/index.html`, `public/app.js`, `public/styles.css`  
+  - Responsibilities:
+    - Load preprocessed JSON (`items.json`, `columns.json`, `meta.json`).
+    - Render a spreadsheet-like table of items.
+    - Apply client-side keyword search to filter rows.
+
+- **Static server (local)**  
+  - Script: `scripts/serve.js`  
+  - Responsibilities:
+    - Serve the `public/` directory over HTTP on `http://localhost:3777`.
+
+### Tech Stack
+
+- **Runtime**: Node.js (no external npm dependencies required right now).
+- **Data ingestion**: Node core modules (`fs`, `path`, `child_process`, `http`, `url`).
+- **Frontend**: Vanilla HTML/CSS/JavaScript; no framework.
+- **Data format**: JSON for both source data and derived artifacts.
+
+### Data Flow
+
+1. **Clone / update source data**
+   - `scripts/build-data.js` ensures a local clone of the upstream data:
+     - If `repos/arcraiders-data/items/` exists, it runs `git pull` in that directory.
+     - Otherwise, it runs `git clone --depth 1 https://github.com/RaidTheory/arcraiders-data.git repos/arcraiders-data`.
+
+2. **Parse and normalize items**
+   - The builder reads every `*.json` file in `repos/arcraiders-data/items/`.
+   - For each raw item object, it produces a **single flat row** using `toRow(data)` with these rules:
+     - **Top-level keys only as columns**  
+       - Each top-level property on the item JSON becomes one column (e.g. `id`, `name`, `description`, `type`, `rarity`, `value`, `weightKg`, `stackSize`, `effects`, `recipe`, `recyclesInto`, `salvagesInto`, `foundIn`, `imageFilename`, `updatedAt`, etc.).
+       - No nested paths (e.g. `effects.Duration.value`) are exposed as columns.
+     - **Localization (locale maps)**  
+       - Objects that look like locale maps (keys are language codes like `en`, `de`, `fr`, …, plus optional `value`) are collapsed to a single string using:
+         - `ARC_DATA_LANG` environment variable, e.g. `en`, `de`, `es`.
+         - Fallback to English (`en`) and then to any available value if needed.
+       - This behavior is used for properties like `name` and `description`.
+     - **Effects formatting**  
+       - The `effects` top-level property is an object whose keys are effect identifiers (e.g. `"Duration"`, `"Stamina Regeneration"`), and values are locale maps that also include a `value` field (e.g. `"10s"`, `"5/s"`).
+       - The builder converts this into a single multi-line string in the `effects` column:
+         - Each line is:  
+           `"<effect name in selected language>: <value>"`  
+           Example (English):  
+           `Duration: 10s`  
+           `Stamina Regeneration: 5/s`
+     - **Key–value list formatting**  
+       - Other structured top-level objects (e.g. `recipe`, `recyclesInto`, `salvagesInto`) are converted into human-readable key–value lists:
+         - Each line is `"key: value"`, joined with newlines.  
+           Example for `recipe`:  
+           `chemicals: 3`  
+           `plastic_parts: 3`
+     - **Primitives and arrays**  
+       - Primitive values (string, number, boolean) are copied directly.
+       - Arrays are preserved as arrays (and rendered as JSON strings in the UI).
+
+3. **Emit derived artifacts**
+   - After processing all items, the builder writes:
+     - `public/items.json` – array of row objects corresponding to items.
+     - `public/columns.json` – sorted unique set of column names (top-level keys).
+       - Columns are sorted with a small priority list first:  
+         `["id", "name", "type", "rarity", "value", "weightKg", "stackSize"]`.
+     - `public/meta.json` – small metadata object:
+       - `lang`: language used for localization (from `ARC_DATA_LANG`).
+       - `itemCount`: number of items exported.
+       - `columnCount`: number of columns.
+
+4. **Serve and display**
+   - `scripts/serve.js` runs a minimal HTTP server that serves the `public/` directory on port `3777`.
+   - The frontend loads:
+     - `items.json` – all rows.
+     - `columns.json` – table header definitions.
+     - `meta.json` – to potentially drive UI or debugging.
+
+### Frontend Behavior
+
+- **Initialization (`public/app.js`)**
+  - Fetches `items.json` and `columns.json` in parallel.
+  - Stores them in memory (`items`, `columns`).
+  - Renders:
+    - `<thead>` with one `<th>` per column.
+    - `<tbody>` with one `<tr>` per item and `<td>` per column.
+  - Each cell:
+    - Displays a primitive string/number as-is.
+    - Displays objects/arrays as a JSON string.
+    - Uses the full text as the `title` attribute for hover tooltips (helpful for multi-line or truncated values like `effects` lists).
+
+- **Search / filtering**
+  - A search input at the top of the page collects a keyword string.
+  - The app lowercases and splits the input into space-separated terms.
+  - For each item row:
+    - Concatenates all column values (stringifying non-primitives as needed).
+    - Converts to lowercase.
+    - Keeps the row if **every** search term is a substring of this combined text.
+  - The table is re-rendered on each input change, and a small counter shows `<visible> / <total> items`.
+
+### Configuration & Conventions
+
+- **Language selection**
+  - Controlled solely at build-time via `ARC_DATA_LANG`.
+  - If you change `ARC_DATA_LANG`, you must rerun `npm run build-data` for the change to take effect.
+
+- **Source data location**
+  - The upstream data repo is always expected at `repos/arcraiders-data/`.
+  - That directory is **git-ignored**; it is treated as a build artifact/cache, not part of this project’s own version control.
+
+- **Extensibility guidelines**
+  - When introducing new derived fields or transforming existing ones:
+    - Prefer keeping **top-level-only columns** to avoid column explosion.
+    - For additional structured fields, consider reusing the `"key: value"` list pattern.
+    - If you add new localized fields, follow the existing locale map detection (`LOCALE_CODES` and `ARC_DATA_LANG`).
+  - When modifying the build pipeline or frontend behavior in a substantial way, keep this document and `README.md` in sync so both humans and agents have up-to-date context.
+
