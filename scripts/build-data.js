@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Clones RaidTheory/arcraiders-data via git, reads item JSON files from the
- * clone, flattens each into a row (union of all property paths), and writes
- * items.json + columns.json for fast local querying.
+ * clone, and writes one row per item with only top-level keys as columns.
+ * Nested structures (e.g. effects, recipe) are formatted as "name: value"
+ * lists; locale maps (name, description) use the configured user language.
  */
 
 import fs from "fs";
@@ -36,39 +37,63 @@ function pickLocale(obj) {
   return obj[USER_LANG] ?? obj.en ?? obj.value ?? Object.values(obj)[0] ?? "";
 }
 
+/** Format effects object as "effect name: value" lines (localized name, then .value). */
+function formatEffects(effects) {
+  if (effects == null || typeof effects !== "object" || Array.isArray(effects)) {
+    return "";
+  }
+  return Object.entries(effects)
+    .map(([key, obj]) => {
+      if (obj == null || typeof obj !== "object") return `${key}: ${obj}`;
+      const label = isLocaleMap(obj) ? pickLocale(obj) : key;
+      const val = Object.prototype.hasOwnProperty.call(obj, "value") ? obj.value : "";
+      return `${label}: ${val}`;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** Format a key–value object (e.g. recipe, recyclesInto) as "key: value" lines. */
+function formatKeyValueList(obj) {
+  if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
+    return obj == null ? "" : JSON.stringify(obj);
+  }
+  return Object.entries(obj)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n");
+}
+
 /**
- * Flatten an object into a single level with dot-separated keys.
- * Objects that look like locale maps (keys = locale codes or "value") are
- * collapsed to a single key using USER_LANG; if they have a "value" key
- * (the raw stat, e.g. "10s"), that is kept as prefix.value.
+ * Build one row per item: only top-level keys as columns. Primitives and
+ * arrays stay as-is; locale maps (name, description) → user language;
+ * effects → "effect name: value" list; other objects → "key: value" list.
  */
-function flatten(obj, prefix = "") {
-  const out = {};
-  if (obj === null || obj === undefined) return out;
-  if (typeof obj !== "object") {
-    out[prefix] = obj;
-    return out;
-  }
-  if (Array.isArray(obj)) {
-    out[prefix] = obj;
-    return out;
-  }
-  if (isLocaleMap(obj)) {
-    out[prefix] = pickLocale(obj);
-    if (Object.prototype.hasOwnProperty.call(obj, "value")) {
-      out[prefix + ".value"] = obj.value;
+function toRow(data) {
+  const row = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined) {
+      row[key] = value;
+      continue;
     }
-    return out;
-  }
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(out, flatten(value, fullKey));
-    } else {
-      out[fullKey] = value;
+    if (typeof value !== "object") {
+      row[key] = value;
+      continue;
     }
+    if (Array.isArray(value)) {
+      row[key] = value;
+      continue;
+    }
+    if (isLocaleMap(value)) {
+      row[key] = pickLocale(value);
+      continue;
+    }
+    if (key === "effects") {
+      row[key] = formatEffects(value);
+      continue;
+    }
+    row[key] = formatKeyValueList(value);
   }
-  return out;
+  return row;
 }
 
 function ensureRepo() {
@@ -108,9 +133,9 @@ function main() {
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
-      const flat = flatten(data);
-      rows.push(flat);
-      for (const k of Object.keys(flat)) keySet.add(k);
+      const row = toRow(data);
+      rows.push(row);
+      for (const k of Object.keys(row)) keySet.add(k);
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
