@@ -1,0 +1,11 @@
+{
+  "name": "arcdata",
+  "version": "1.0.0",
+  "description": "Arc Raiders inventory – local item browser with spreadsheet view and search",
+  "type": "module",
+  "scripts": {
+    "build-data": "node scripts/build-data.js",
+    "start": "node scripts/serve.js",
+    "dev": "npm run build-data && npm run start"
+  }
+}
