@@ -134,6 +134,20 @@ body {
   letter-spacing: 0.04em;
   color: var(--muted);
   user-select: none;
+  cursor: pointer;
+}
+
+.table th:hover {
+  color: var(--text);
+}
+
+.sort-arrow {
+  opacity: 0;
+  margin-left: 0.15em;
+}
+
+.sort-arrow.visible {
+  opacity: 1;
 }
 
 .table th:last-child,
