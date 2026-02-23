@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Clones RaidTheory/arcraiders-data via git, reads item JSON files from the
- * clone, and writes one row per item with only top-level keys as columns.
+ * clone, and writes one row per item. Only columns listed in public/columns.json
+ * are included in the output.
  * Nested structures (e.g. effects, recipe) are formatted as "name: value"
  * lists; locale maps (name, description) use the configured user language.
  */
@@ -115,12 +116,17 @@ function listItemFiles() {
 }
 
 function main() {
+  const COLUMNS_PATH = path.join(__dirname, "..", "public", "columns.json");
+  if (!fs.existsSync(COLUMNS_PATH)) {
+    throw new Error(`Missing ${COLUMNS_PATH}. Create it with an array of column names to include.`);
+  }
+  const configColumns = JSON.parse(fs.readFileSync(COLUMNS_PATH, "utf8"));
+
   ensureRepo();
   const files = listItemFiles();
   console.log(`Found ${files.length} item files.`);
 
   const rows = [];
-  const keySet = new Set();
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
@@ -128,23 +134,18 @@ function main() {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
       const row = toRow(data);
-      rows.push(row);
-      for (const k of Object.keys(row)) keySet.add(k);
+      const filteredRow = {};
+      for (const col of configColumns) {
+        if (Object.prototype.hasOwnProperty.call(row, col)) {
+          filteredRow[col] = row[col];
+        }
+      }
+      rows.push(filteredRow);
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
     if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
   }
-
-  const columns = [...keySet].sort((a, b) => {
-    const priority = ["id", "name", "type", "rarity", "value", "weightKg", "stackSize"];
-    const ai = priority.indexOf(a);
-    const bi = priority.indexOf(b);
-    if (ai !== -1 && bi !== -1) return ai - bi;
-    if (ai !== -1) return -1;
-    if (bi !== -1) return 1;
-    return a.localeCompare(b);
-  });
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(
@@ -152,18 +153,13 @@ function main() {
     JSON.stringify(rows, null, 0),
     "utf8"
   );
-  fs.writeFileSync(
-    path.join(OUT_DIR, "columns.json"),
-    JSON.stringify(columns, null, 2),
-    "utf8"
-  );
-  const meta = { lang: USER_LANG, itemCount: rows.length, columnCount: columns.length };
+  const meta = { lang: USER_LANG, itemCount: rows.length, columnCount: configColumns.length };
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
     JSON.stringify(meta, null, 2),
     "utf8"
   );
-  console.log(`Wrote ${rows.length} items and ${columns.length} columns to public/ (lang: ${USER_LANG})`);
+  console.log(`Wrote ${rows.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
 }
 
 try {

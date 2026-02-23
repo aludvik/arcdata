@@ -1,0 +1,22 @@
+[
+  "name",
+  
+  "recipe",
+  "recyclesInto",
+  "salvagesInto",
+  "upgradeCost",
+  "repairCost",
+
+  "foundIn",
+  "stackSize",
+  "craftBench",
+
+  "type",
+  "rarity",
+  "value",
+  "weightKg",
+  "compatibleWith",
+
+  "updatedAt",
+  "id"
+]

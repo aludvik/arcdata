@@ -13,12 +13,13 @@ This document describes the current architecture of the **Arc Raiders Item Brows
   - Responsibilities:
     - Clone or update the `arcraiders-data` repo into `repos/arcraiders-data/`.
     - Read and normalize all item JSON files from `repos/arcraiders-data/items/`.
+    - Filter output to only columns listed in `public/columns.json` (manually maintained).
     - Emit a compact, query-friendly model into the `public/data/` directory.
 
 - **Static web app (frontend)**  
   - Files: `public/index.html`, `public/app.js`, `public/styles.css`  
   - Responsibilities:
-    - Load preprocessed JSON (`items.json`, `columns.json`, `meta.json`).
+    - Load preprocessed JSON (`data/items.json`, `columns.json`, `meta.json`).
     - Render a spreadsheet-like table of items.
     - Apply client-side keyword search to filter rows.
 
@@ -71,27 +72,26 @@ This document describes the current architecture of the **Arc Raiders Item Brows
        - Arrays are preserved as arrays (and rendered as JSON strings in the UI).
 
 3. **Emit derived artifacts**
+   - The builder reads `public/columns.json` (manually maintained) to determine which columns to include.
    - After processing all items, the builder writes under `public/data/`:
-     - `items.json` – array of row objects corresponding to items.
-     - `columns.json` – sorted unique set of column names (top-level keys).
-       - Columns are sorted with a small priority list first:  
-         `["id", "name", "type", "rarity", "value", "weightKg", "stackSize"]`.
+     - `items.json` – array of row objects, each containing only keys listed in `public/columns.json`.
      - `meta.json` – small metadata object:
        - `lang`: language used for localization (from `ARC_DATA_LANG`).
        - `itemCount`: number of items exported.
-       - `columnCount`: number of columns.
+       - `columnCount`: number of columns (from `public/columns.json`).
+   - The builder does **not** emit `columns.json`; that file is maintained manually at `public/columns.json`.
 
 4. **Serve and display**
    - `scripts/serve.js` runs a minimal HTTP server that serves the `public/` directory on port `3777`.
-   - The frontend loads (from `/data/`):
+   - The frontend loads:
      - `data/items.json` – all rows.
-     - `data/columns.json` – table header definitions.
+     - `columns.json` – table header definitions (from `public/columns.json`).
      - `data/meta.json` – to potentially drive UI or debugging.
 
 ### Frontend Behavior
 
 - **Initialization (`public/app.js`)**
-  - Fetches `items.json` and `columns.json` in parallel.
+  - Fetches `data/items.json` and `columns.json` in parallel.
   - Stores them in memory (`items`, `columns`).
   - Renders:
     - `<thead>` with one `<th>` per column.

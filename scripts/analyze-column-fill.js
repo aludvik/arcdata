@@ -2,8 +2,8 @@
 /**
  * For each column in the built items data, count how many rows have data
  * (non-empty value). Output a histogram table sorted by fill count ascending,
- * so mostly-empty columns appear first. Reads from public/data/ if present,
- * otherwise public/.
+ * so mostly-empty columns appear first. Reads items from public/data/ (or public/),
+ * columns from public/columns.json.
  */
 
 import fs from "fs";
@@ -31,7 +31,7 @@ function hasData(value) {
 function main() {
   const dataDir = findDataDir();
   const itemsPath = path.join(dataDir, "items.json");
-  const columnsPath = path.join(dataDir, "columns.json");
+  const columnsPath = path.join(ROOT, "public", "columns.json");
 
   const items = JSON.parse(fs.readFileSync(itemsPath, "utf8"));
   const columns = JSON.parse(fs.readFileSync(columnsPath, "utf8"));
