@@ -81,6 +81,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
        - `lang`: language used for localization (from `ARC_DATA_LANG`).
        - `itemCount`: number of items exported.
        - `columnCount`: number of columns (from `public/columns.json`).
+     - `idToName.json` – flat object mapping each item’s internal `id` to its localized display `name`, using the same localization rules as `items.json` (driven by `ARC_DATA_LANG`). This is intended for future cross-reference features such as resolving ID-based relationships (e.g. `recipe`, `recyclesInto`, `salvagesInto`) to human-readable names.
    - The builder does **not** emit `columns.json`; that file is maintained manually at `public/columns.json`.
 
 4. **Serve and display**

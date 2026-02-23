@@ -133,6 +133,7 @@ function main() {
   console.log(`Found ${files.length} item files.`);
 
   const rows = [];
+  const idToName = {};
   let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
@@ -145,6 +146,12 @@ function main() {
       if (itemType && excludeTypes.includes(itemType)) {
         skippedByType++;
         continue;
+      }
+      const id = data.id ?? row.id;
+      const name = row.name;
+      if (id != null && name != null) {
+        const idKey = String(id);
+        idToName[idKey] = name;
       }
       const filteredRow = {};
       for (const col of configColumns) {
@@ -169,6 +176,11 @@ function main() {
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
     JSON.stringify(meta, null, 2),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.join(OUT_DIR, "idToName.json"),
+    JSON.stringify(idToName, null, 0),
     "utf8"
   );
   console.log(`Wrote ${rows.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
