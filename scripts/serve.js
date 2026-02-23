@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(__dirname, "..", "public");
 const PORT = 3777;
+const HOST = "localhost";
 
 const MIMES = {
   ".html": "text/html",
@@ -35,6 +36,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Arc Data running at http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Arc Data running at http://${HOST}:${PORT}`);
 });
