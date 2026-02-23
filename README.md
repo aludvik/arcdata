@@ -9,7 +9,7 @@ It consumes the community-maintained JSON data from the ARC Raiders Tech Test 2 
 - **Spreadsheet-style table**: One row per item, one column per top-level property.
 - **Fast keyword search**: Filters items as you type across all visible fields.
 - **Configurable language**: Item names and descriptions are localized to a single user-selected language.
- - **Configurable item filtering**: Certain item types can be excluded entirely from the table via `public/exclude_type.json`.
+ - **Configurable item filtering**: Certain item types can be excluded entirely from the table via `public/exclude_types.json`.
 
 ### Prerequisites
 
@@ -43,7 +43,7 @@ Then open `http://localhost:3777` in your browser to use the app.
     - Resolves localized fields (`name`, `description`, etc.) to a **single language**.
     - Formats structured fields like `effects` and `recipe` into human-readable `"key: value"` lists.
     - Filters output to **only columns listed** in `public/columns.json` (edited manually).
-    - Skips any item whose `type` is listed in `public/exclude_type.json` (an array of type strings to exclude).
+    - Skips any item whose `type` is listed in `public/exclude_types.json` (an array of type strings to exclude).
   - The processed result is written to:
     - `public/data/items.json` – array of rows shown in the UI.
     - `public/data/meta.json` – metadata (e.g. chosen language, item count).

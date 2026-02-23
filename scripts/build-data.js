@@ -117,7 +117,7 @@ function listItemFiles() {
 
 function main() {
   const COLUMNS_PATH = path.join(__dirname, "..", "public", "columns.json");
-  const EXCLUDE_TYPES_PATH = path.join(__dirname, "..", "public", "exclude_type.json");
+  const EXCLUDE_TYPES_PATH = path.join(__dirname, "..", "public", "exclude_types.json");
   if (!fs.existsSync(COLUMNS_PATH)) {
     throw new Error(`Missing ${COLUMNS_PATH}. Create it with an array of column names to include.`);
   }
