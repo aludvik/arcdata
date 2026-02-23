@@ -14,6 +14,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
     - Clone or update the `arcraiders-data` repo into `repos/arcraiders-data/`.
     - Read and normalize all item JSON files from `repos/arcraiders-data/items/`.
     - Filter output to only columns listed in `public/columns.json` (manually maintained).
+    - Exclude items whose `type` is configured in `public/exclude_type.json`.
     - Emit a compact, query-friendly model into the `public/data/` directory.
 
 - **Static web app (frontend)**  
@@ -73,6 +74,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
 
 3. **Emit derived artifacts**
    - The builder reads `public/columns.json` (manually maintained) to determine which columns to include.
+   - It also reads `public/exclude_type.json` (array of strings) and drops any item whose flattened `row.type` matches one of those values.
    - After processing all items, the builder writes under `public/data/`:
      - `items.json` – array of row objects, each containing only keys listed in `public/columns.json`.
      - `meta.json` – small metadata object:

@@ -117,16 +117,23 @@ function listItemFiles() {
 
 function main() {
   const COLUMNS_PATH = path.join(__dirname, "..", "public", "columns.json");
+  const EXCLUDE_TYPES_PATH = path.join(__dirname, "..", "public", "exclude_type.json");
   if (!fs.existsSync(COLUMNS_PATH)) {
     throw new Error(`Missing ${COLUMNS_PATH}. Create it with an array of column names to include.`);
   }
   const configColumns = JSON.parse(fs.readFileSync(COLUMNS_PATH, "utf8"));
+
+  if (!fs.existsSync(EXCLUDE_TYPES_PATH)) {
+    throw new Error(`Missing ${EXCLUDE_TYPES_PATH}. Create it with an array of item type strings to exclude, or provide an empty array if none.`);
+  }
+  const excludeTypes = JSON.parse(fs.readFileSync(EXCLUDE_TYPES_PATH, "utf8"));
 
   ensureRepo();
   const files = listItemFiles();
   console.log(`Found ${files.length} item files.`);
 
   const rows = [];
+  let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
@@ -134,6 +141,11 @@ function main() {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
       const row = toRow(data);
+      const itemType = row.type;
+      if (itemType && excludeTypes.includes(itemType)) {
+        skippedByType++;
+        continue;
+      }
       const filteredRow = {};
       for (const col of configColumns) {
         if (Object.prototype.hasOwnProperty.call(row, col)) {
@@ -160,6 +172,9 @@ function main() {
     "utf8"
   );
   console.log(`Wrote ${rows.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
+  if (skippedByType > 0) {
+    console.log(`Skipped ${skippedByType} items by type filter (from ${EXCLUDE_TYPES_PATH}).`);
+  }
 }
 
 try {
