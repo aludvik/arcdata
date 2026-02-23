@@ -17,12 +17,6 @@ const REPO_DIR = path.join(__dirname, "..", "repos", "arcraiders-data");
 const ITEMS_DIR = "items";
 const OUT_DIR = path.join(__dirname, "..", "public", "data");
 
-/** Locale codes used in arcraiders-data (for detecting locale maps). */
-const LOCALE_CODES = new Set([
-  "da", "de", "en", "es", "fr", "he", "hr", "it", "ja", "kr", "no", "pl",
-  "pt", "pt-BR", "ru", "sr", "tr", "uk", "zh-CN", "zh-TW",
-]);
-
 /** User language for localization. Set via ARC_DATA_LANG (default: en). */
 const USER_LANG = process.env.ARC_DATA_LANG || "en";
 
@@ -30,7 +24,7 @@ function isLocaleMap(obj) {
   if (obj === null || typeof obj !== "object" || Array.isArray(obj)) return false;
   const keys = Object.keys(obj);
   if (keys.length === 0) return false;
-  return keys.every((k) => k === "value" || LOCALE_CODES.has(k));
+  return keys.includes("en");
 }
 
 function pickLocale(obj) {
