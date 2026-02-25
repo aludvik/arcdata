@@ -1,21 +1,19 @@
 [
   "name",
+  "type",
+  "rarity",
+  "value",
+  "weightKg",
+  "stackSize",
+  "foundIn",
+  "compatibleWith",
   
+  "craftBench",
   "recipe",
   "recyclesInto",
   "salvagesInto",
   "upgradeCost",
   "repairCost",
-
-  "foundIn",
-  "stackSize",
-  "craftBench",
-
-  "type",
-  "rarity",
-  "value",
-  "weightKg",
-  "compatibleWith",
 
   "updatedAt",
   "id"
