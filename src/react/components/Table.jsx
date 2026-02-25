@@ -2,7 +2,14 @@ import React from "react";
 import { TableHeader } from "./TableHeader.jsx";
 import { TableBody } from "./TableBody.jsx";
 
-export function Table({ columns, rows, sortColumn, sortDirection, onSortChange }) {
+export function Table({
+  columns,
+  rows,
+  sortColumn,
+  sortDirection,
+  onSortChange,
+  idToName,
+}) {
   return (
     <table id="table" className="table">
       <thead>
@@ -14,7 +21,7 @@ export function Table({ columns, rows, sortColumn, sortDirection, onSortChange }
         />
       </thead>
       <tbody>
-        <TableBody columns={columns} rows={rows} />
+        <TableBody columns={columns} rows={rows} idToName={idToName} />
       </tbody>
     </table>
   );

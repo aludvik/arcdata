@@ -1,7 +1,7 @@
 import React from "react";
 import { Row } from "./Row.jsx";
 
-export function TableBody({ columns, rows }) {
+export function TableBody({ columns, rows, idToName }) {
   return (
     <>
       {rows.map((row, index) => (
@@ -9,6 +9,7 @@ export function TableBody({ columns, rows }) {
           key={row.id ?? index}
           columns={columns}
           row={row}
+          idToName={idToName}
         />
       ))}
     </>

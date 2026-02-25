@@ -7,6 +7,7 @@ export function App() {
   const [items, setItems] = useState([]);
   const [columns, setColumns] = useState([]);
   const [numericColumns, setNumericColumns] = useState(() => new Set());
+  const [idToName, setIdToName] = useState(() => ({}));
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,22 +17,25 @@ export function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemsRes, columnsRes] = await Promise.all([
+        const [itemsRes, columnsRes, idToNameRes] = await Promise.all([
           fetch("data/items.json"),
           fetch("columns.json"),
+          fetch("data/idToName.json"),
         ]);
 
-        if (!itemsRes.ok || !columnsRes.ok) {
+        if (!itemsRes.ok || !columnsRes.ok || !idToNameRes.ok) {
           throw new Error("Failed to load data");
         }
 
-        const [itemsData, columnsData] = await Promise.all([
+        const [itemsData, columnsData, idToNameData] = await Promise.all([
           itemsRes.json(),
           columnsRes.json(),
+          idToNameRes.json(),
         ]);
 
         setItems(itemsData);
         setColumns(columnsData);
+        setIdToName(idToNameData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
         setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
         setError(null);
@@ -111,6 +115,7 @@ export function App() {
               sortColumn={sortColumn}
               sortDirection={sortDirection}
               onSortChange={handleSortChange}
+              idToName={idToName}
             />
           )}
         </div>
