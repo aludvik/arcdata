@@ -7,23 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="header">
-    <h1>Arc Raiders Item Browser</h1>
-    <p class="subtitle">Data from <a href="https://github.com/RaidTheory/arcraiders-data" target="_blank" rel="noopener">RaidTheory/arcraiders-data</a></p>
-    <div class="search-wrap">
-      <label for="search">Search</label>
-      <input type="text" id="search" placeholder="Filter by keyword…" autocomplete="off" />
-      <span id="count" class="count"></span>
-    </div>
-  </header>
-  <main class="main">
-    <div class="table-wrap">
-      <table id="table" class="table">
-        <thead id="thead"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </main>
-  <script src="app.js"></script>
+  <div id="root"></div>
+  <script src="app-react.js"></script>
 </body>
 </html>

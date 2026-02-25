@@ -21,8 +21,12 @@ It consumes the community-maintained JSON data from the ARC Raiders Tech Test 2 
 From the project root:
 
 ```bash
+# 0. Install dependencies (once)
+npm install
+
 # 1. Fetch and preprocess game data into a flat JSON model
-npm run build-data
+#    and build the React frontend bundle
+npm run build
 
 # 2. Start the local static server
 npm run start
@@ -50,7 +54,7 @@ Then open `http://localhost:3777` in your browser to use the app.
     - `public/data/idToName.json` – object mapping each item’s internal `id` to its localized display `name`.
   - Column definitions live in `public/columns.json` (manually maintained; the build script does not emit this file).
 
-The frontend (`public/index.html` + `public/app.js`) loads `data/items.json` and `columns.json` from `public/`, renders a table with dynamic columns, and applies client-side filtering as you type into the search box.
+The frontend is a small React app: source in `src/react/` is bundled (via esbuild) into `public/app-react.js`, which is loaded by `public/index.html`. It loads `data/items.json` and `columns.json` from `public/`, renders a table with dynamic columns, and applies client-side filtering as you type into the search box.
 
 ### Localization
 
