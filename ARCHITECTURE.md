@@ -12,10 +12,13 @@ This document describes the current architecture of the **Arc Raiders Item Brows
   - Script: `scripts/build-data.js`  
   - Responsibilities:
     - Clone or update the `arcraiders-data` repo into `repos/arcraiders-data/`.
-    - Read and normalize all item JSON files from `repos/arcraiders-data/items/`.
-    - Filter output to only columns listed in `public/columns.json` (manually maintained).
-    - Exclude items whose `type` is configured in `public/exclude_types.json`.
-    - Emit a compact, query-friendly model into the `public/data/` directory.
+    - Read and lightly normalize all item JSON files from `repos/arcraiders-data/items/`.
+    - Reduce the dataset by:
+      - Filtering output to only columns listed in `public/columns.json` (manually maintained).
+      - Excluding items whose `type` is configured in `public/exclude_types.json`.
+      - Resolving locale maps (e.g. `name`, `description`) to a single language.
+    - Preserve structured reference fields (e.g. `recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs.
+    - Emit a compact, index-backed model into the `public/data/` directory (`items.json`, `meta.json`, `idToName.json`).
 
 - **Static web app (frontend)**  
   - Files: `public/index.html`, `public/app.js`, `public/styles.css`  
@@ -45,7 +48,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
 
 2. **Parse and normalize items**
    - The builder reads every `*.json` file in `repos/arcraiders-data/items/`.
-   - For each raw item object, it produces a **single flat row** using `toRow(data)` with these rules:
+   - For each raw item object, it produces a **normalized item** using `normalizeItem(data)` with these rules:
      - **Top-level keys only as columns**  
        - Each top-level property on the item JSON becomes one column (e.g. `id`, `name`, `description`, `type`, `rarity`, `value`, `weightKg`, `stackSize`, `effects`, `recipe`, `recyclesInto`, `salvagesInto`, `foundIn`, `imageFilename`, `updatedAt`, etc.).
        - No nested paths (e.g. `effects.Duration.value`) are exposed as columns.
@@ -62,26 +65,24 @@ This document describes the current architecture of the **Arc Raiders Item Brows
            Example (English):  
            `Duration: 10s`  
            `Stamina Regeneration: 5/s`
-     - **Key–value list formatting**  
-       - Other structured top-level objects (e.g. `recipe`, `recyclesInto`, `salvagesInto`) are converted into human-readable key–value lists:
-         - Each line is `"key: value"`, joined with newlines.  
-           Example for `recipe`:  
-           `chemicals: 3`  
-           `plastic_parts: 3`
-     - **Primitives and arrays**  
+     - **Structured reference fields**  
+       - Reference-like top-level objects (e.g. `recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) are **preserved as structured objects keyed by item IDs**.
+       - These fields are not stringified and do not substitute IDs for names; the app uses indices like `idToName.json` to render them.
+     - **Other objects, primitives and arrays**  
        - Primitive values (string, number, boolean) are copied directly.
-       - Arrays are preserved as arrays (and rendered as JSON strings in the UI).
+       - Arrays are preserved as arrays.
+       - Other non-reference objects fall back to a simple `"key: value"` representation for readability where helpful.
 
 3. **Emit derived artifacts**
    - The builder reads `public/columns.json` (manually maintained) to determine which columns to include.
-   - It also reads `public/exclude_types.json` (array of strings) and drops any item whose flattened `row.type` matches one of those values.
+   - It also reads `public/exclude_types.json` (array of strings) and drops any item whose normalized `type` matches one of those values.
    - After processing all items, the builder writes under `public/data/`:
-     - `items.json` – array of row objects, each containing only keys listed in `public/columns.json`.
+     - `items.json` – array of normalized item objects, each containing only keys listed in `public/columns.json`. Structured reference fields remain as ID-keyed objects.
      - `meta.json` – small metadata object:
        - `lang`: language used for localization (from `ARC_DATA_LANG`).
        - `itemCount`: number of items exported.
        - `columnCount`: number of columns (from `public/columns.json`).
-     - `idToName.json` – flat object mapping each item’s internal `id` to its localized display `name`, using the same localization rules as `items.json` (driven by `ARC_DATA_LANG`). This is intended for future cross-reference features such as resolving ID-based relationships (e.g. `recipe`, `recyclesInto`, `salvagesInto`) to human-readable names.
+     - `idToName.json` – flat object mapping each item’s internal `id` to its localized display `name`, using the same localization rules as `items.json` (driven by `ARC_DATA_LANG`). This is the primary runtime index for resolving ID-based relationships (e.g. `recipe`, `recyclesInto`, `salvagesInto`) to human-readable names in the UI.
    - The builder does **not** emit `columns.json`; that file is maintained manually at `public/columns.json`.
 
 4. **Serve and display**
@@ -126,7 +127,16 @@ This document describes the current architecture of the **Arc Raiders Item Brows
 - **Extensibility guidelines**
   - When introducing new derived fields or transforming existing ones:
     - Prefer keeping **top-level-only columns** to avoid column explosion.
-    - For additional structured fields, consider reusing the `"key: value"` list pattern.
-    - If you add new localized fields, follow the existing locale map detection (`LOCALE_CODES` and `ARC_DATA_LANG`).
+    - For additional structured fields that reference other items, prefer **keeping structured objects keyed by IDs** and using indices (like `idToName.json`) at render time instead of flattening them to strings.
+    - If you add new localized fields, follow the existing locale map detection (`ARC_DATA_LANG`).
   - When modifying the build pipeline or frontend behavior in a substantial way, keep this document and `README.md` in sync so both humans and agents have up-to-date context.
+
+### React frontend expectations for structured data
+
+- The React table in `src/react/` consumes:
+  - `data/items.json` – normalized items with:
+    - Locale-resolved scalar fields (e.g. `name`, `description`).
+    - Structured reference fields (`recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs with scalar payloads.
+  - `data/idToName.json` – ID → localized name index used to render reference fields.
+- Rendering rules for these structured fields (e.g. how to order entries, how to display quantities) are owned by the React components, not the build step.
 

@@ -45,13 +45,14 @@ Then open `http://localhost:3777` in your browser to use the app.
   - For each item it:
     - Keeps **only top-level keys** as columns (e.g. `id`, `name`, `description`, `effects`, `recipe`, `recyclesInto`).
     - Resolves localized fields (`name`, `description`, etc.) to a **single language**.
-    - Formats structured fields like `effects` and `recipe` into human-readable `"key: value"` lists.
+    - Formats some non-relational structured fields like `effects` into human-readable `"name: value"` lists.
+    - Preserves reference-like structured fields (`recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs, without substituting IDs for names.
     - Filters output to **only columns listed** in `public/columns.json` (edited manually).
     - Skips any item whose `type` is listed in `public/exclude_types.json` (an array of type strings to exclude).
   - The processed result is written to:
-    - `public/data/items.json` – array of rows shown in the UI.
+    - `public/data/items.json` – array of normalized items shown in the UI.
     - `public/data/meta.json` – metadata (e.g. chosen language, item count).
-    - `public/data/idToName.json` – object mapping each item’s internal `id` to its localized display `name`.
+    - `public/data/idToName.json` – object mapping each item’s internal `id` to its localized display `name`, used by the React app to resolve ID-based relationships (e.g. recipes) at render time.
   - Column definitions live in `public/columns.json` (manually maintained; the build script does not emit this file).
 
 The frontend is a small React app: source in `src/react/` is bundled (via esbuild) into `public/app-react.js`, which is loaded by `public/index.html`. It loads `data/items.json` and `columns.json` from `public/`, renders a table with dynamic columns, and applies client-side filtering as you type into the search box.

@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 /**
  * Clones RaidTheory/arcraiders-data via git, reads item JSON files from the
- * clone, and writes one row per item. Only columns listed in public/columns.json
- * are included in the output.
- * Nested structures (e.g. effects, recipe) are formatted as "name: value"
- * lists; locale maps (name, description) use the configured user language.
+ * clone, and writes a normalized, size-reduced JSON model for the frontend.
+ *
+ * Responsibilities:
+ * - Dataset reduction: filter out unwanted item types and top-level properties.
+ * - Light normalization: resolve locale maps to a single language and keep
+ *   reference fields as structured objects keyed by IDs.
+ * - Index building: precompute simple lookup maps (e.g. ID → name) needed by
+ *   the app at runtime so they don't need to be built on startup.
  */
 
 import fs from "fs";
@@ -33,22 +37,6 @@ function pickLocale(obj) {
   return obj[USER_LANG] ?? obj.en ?? obj.value ?? Object.values(obj)[0] ?? "";
 }
 
-/** Format effects object as "effect name: value" lines (localized name, then .value). */
-function formatEffects(effects) {
-  if (effects == null || typeof effects !== "object" || Array.isArray(effects)) {
-    return "";
-  }
-  return Object.entries(effects)
-    .map(([key, obj]) => {
-      if (obj == null || typeof obj !== "object") return `${key}: ${obj}`;
-      const label = isLocaleMap(obj) ? pickLocale(obj) : key;
-      const val = Object.prototype.hasOwnProperty.call(obj, "value") ? obj.value : "";
-      return `${label}: ${val}`;
-    })
-    .filter(Boolean)
-    .join("\n");
-}
-
 /** Format a key–value object (e.g. recipe, recyclesInto) as "key: value" lines. */
 function formatKeyValueList(obj) {
   if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
@@ -60,53 +48,44 @@ function formatKeyValueList(obj) {
 }
 
 /**
- * Build one row per item: only top-level keys as columns. Primitives and
- * arrays stay as-is; locale maps (name, description) → user language;
- * effects → "effect name: value" list; other objects → "key: value" list.
+ * Normalize a raw item into a flat object keyed by top-level property names.
+ *
+ * Rules:
+ * - Primitives and arrays stay as-is.
+ * - Locale maps (e.g. name, description) are resolved to a single language.
+ * - The `effects` field is formatted as a multi-line "effect name: value" list.
+ * - Known reference fields (e.g. recipe, recyclesInto) remain structured
+ *   objects keyed by item IDs — no ID → name substitution and no flattening.
+ * - Other plain objects fall back to a simple "key: value" representation.
  */
-function toRow(data) {
-  const row = {};
+function normalizeItem(data) {
+  const normalized = {};
   for (const [key, value] of Object.entries(data)) {
     if (value === null || value === undefined) {
-      row[key] = value;
+      normalized[key] = value;
       continue;
     }
     if (typeof value !== "object") {
-      row[key] = value;
+      normalized[key] = value;
       continue;
     }
     if (Array.isArray(value)) {
-      row[key] = value;
+      normalized[key] = value;
       continue;
     }
     if (isLocaleMap(value)) {
-      row[key] = pickLocale(value);
+      normalized[key] = pickLocale(value);
       continue;
     }
-    if (key === "effects") {
-      row[key] = formatEffects(value);
+    if (ITEM_REF_FIELDS.includes(key)) {
+      // Keep structured reference objects (e.g. recipe) as-is so the app can
+      // decide how to render them using indices like idToName.json.
+      normalized[key] = value;
       continue;
     }
-    row[key] = formatKeyValueList(value);
+    normalized[key] = formatKeyValueList(value);
   }
-  return row;
-}
-
-/**
- * Given an object whose keys are item IDs and values are quantities (or other
- * scalars), return a new object whose keys are item names (when known) using
- * the provided idToName map. Unknown IDs are left as-is.
- */
-function mapItemRefObject(obj, idToName) {
-  if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
-    return obj;
-  }
-  const result = {};
-  for (const [rawKey, value] of Object.entries(obj)) {
-    const key = idToName[String(rawKey)] ?? rawKey;
-    result[key] = value;
-  }
-  return result;
+  return normalized;
 }
 
 function ensureRepo() {
@@ -133,25 +112,27 @@ function listItemFiles() {
     .map((e) => path.join(itemsPath, e.name));
 }
 
-function main() {
+function loadConfig() {
   const COLUMNS_PATH = path.join(__dirname, "..", "public", "columns.json");
   const EXCLUDE_TYPES_PATH = path.join(__dirname, "..", "public", "exclude_types.json");
+
   if (!fs.existsSync(COLUMNS_PATH)) {
     throw new Error(`Missing ${COLUMNS_PATH}. Create it with an array of column names to include.`);
   }
   const configColumns = JSON.parse(fs.readFileSync(COLUMNS_PATH, "utf8"));
 
   if (!fs.existsSync(EXCLUDE_TYPES_PATH)) {
-    throw new Error(`Missing ${EXCLUDE_TYPES_PATH}. Create it with an array of item type strings to exclude, or provide an empty array if none.`);
+    throw new Error(
+      `Missing ${EXCLUDE_TYPES_PATH}. Create it with an array of item type strings to exclude, or provide an empty array if none.`,
+    );
   }
   const excludeTypes = JSON.parse(fs.readFileSync(EXCLUDE_TYPES_PATH, "utf8"));
 
-  ensureRepo();
-  const files = listItemFiles();
-  console.log(`Found ${files.length} item files.`);
+  return { configColumns, excludeTypes, excludeTypesPath: EXCLUDE_TYPES_PATH };
+}
 
+function buildIdToName(files) {
   const idToName = {};
-  let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
@@ -173,52 +154,59 @@ function main() {
     if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
   }
 
-  const rows = [];
+  return idToName;
+}
+
+function buildItems(files, configColumns, excludeTypes) {
+  const items = [];
+  let skippedByType = 0;
+
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
 
-      // Apply ID → name mapping to known item-reference objects before flattening.
-      for (const field of ITEM_REF_FIELDS) {
-        if (
-          Object.prototype.hasOwnProperty.call(data, field) &&
-          data[field] != null &&
-          typeof data[field] === "object" &&
-          !Array.isArray(data[field])
-        ) {
-          data[field] = mapItemRefObject(data[field], idToName);
-        }
-      }
-
-      const row = toRow(data);
-      const itemType = row.type;
+      const normalized = normalizeItem(data);
+      const itemType = normalized.type;
       if (itemType && excludeTypes.includes(itemType)) {
         skippedByType++;
         continue;
       }
 
-      const filteredRow = {};
+      const filtered = {};
       for (const col of configColumns) {
-        if (Object.prototype.hasOwnProperty.call(row, col)) {
-          filteredRow[col] = row[col];
+        if (Object.prototype.hasOwnProperty.call(normalized, col)) {
+          filtered[col] = normalized[col];
         }
       }
-      rows.push(filteredRow);
+      items.push(filtered);
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
-    if ((i + 1) % 100 === 0) console.log(`  Parsed (rows) ${i + 1}/${files.length}…`);
+    if ((i + 1) % 100 === 0) console.log(`  Parsed (items) ${i + 1}/${files.length}…`);
   }
+
+  return { items, skippedByType };
+}
+
+function main() {
+  const { configColumns, excludeTypes, excludeTypesPath } = loadConfig();
+
+  ensureRepo();
+  const files = listItemFiles();
+  console.log(`Found ${files.length} item files.`);
+
+  const idToName = buildIdToName(files);
+  const { items, skippedByType } = buildItems(files, configColumns, excludeTypes);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(
     path.join(OUT_DIR, "items.json"),
-    JSON.stringify(rows, null, 0),
+    JSON.stringify(items, null, 0),
     "utf8"
   );
-  const meta = { lang: USER_LANG, itemCount: rows.length, columnCount: configColumns.length };
+  const meta = { lang: USER_LANG, itemCount: items.length, columnCount: configColumns.length };
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
     JSON.stringify(meta, null, 2),
@@ -229,9 +217,9 @@ function main() {
     JSON.stringify(idToName, null, 0),
     "utf8"
   );
-  console.log(`Wrote ${rows.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
+  console.log(`Wrote ${items.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
   if (skippedByType > 0) {
-    console.log(`Skipped ${skippedByType} items by type filter (from ${EXCLUDE_TYPES_PATH}).`);
+    console.log(`Skipped ${skippedByType} items by type filter (from ${excludeTypesPath}).`);
   }
 }
 
