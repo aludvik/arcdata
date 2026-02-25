@@ -17,6 +17,7 @@ const REPO_URL = "https://github.com/RaidTheory/arcraiders-data.git";
 const REPO_DIR = path.join(__dirname, "..", "repos", "arcraiders-data");
 const ITEMS_DIR = "items";
 const OUT_DIR = path.join(__dirname, "..", "public", "data");
+const ITEM_REF_FIELDS = ["recipe", "recyclesInto", "salvagesInto", "upgradeCost", "repairCost"];
 
 /** User language for localization. Set via ARC_DATA_LANG (default: en). */
 const USER_LANG = process.env.ARC_DATA_LANG || "en";
@@ -91,6 +92,23 @@ function toRow(data) {
   return row;
 }
 
+/**
+ * Given an object whose keys are item IDs and values are quantities (or other
+ * scalars), return a new object whose keys are item names (when known) using
+ * the provided idToName map. Unknown IDs are left as-is.
+ */
+function mapItemRefObject(obj, idToName) {
+  if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
+    return obj;
+  }
+  const result = {};
+  for (const [rawKey, value] of Object.entries(obj)) {
+    const key = idToName[String(rawKey)] ?? rawKey;
+    result[key] = value;
+  }
+  return result;
+}
+
 function ensureRepo() {
   const itemsPath = path.join(REPO_DIR, ITEMS_DIR);
   if (fs.existsSync(itemsPath)) {
@@ -132,7 +150,6 @@ function main() {
   const files = listItemFiles();
   console.log(`Found ${files.length} item files.`);
 
-  const rows = [];
   const idToName = {};
   let skippedByType = 0;
 
@@ -141,18 +158,47 @@ function main() {
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
+      const id = data.id;
+      let name = data.name;
+      if (name && typeof name === "object" && !Array.isArray(name) && isLocaleMap(name)) {
+        name = pickLocale(name);
+      }
+      if (id != null && name != null) {
+        const idKey = String(id);
+        idToName[idKey] = name;
+      }
+    } catch (e) {
+      console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
+    }
+    if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
+  }
+
+  const rows = [];
+  for (let i = 0; i < files.length; i++) {
+    const filePath = files[i];
+    try {
+      const raw = fs.readFileSync(filePath, "utf8");
+      const data = JSON.parse(raw);
+
+      // Apply ID → name mapping to known item-reference objects before flattening.
+      for (const field of ITEM_REF_FIELDS) {
+        if (
+          Object.prototype.hasOwnProperty.call(data, field) &&
+          data[field] != null &&
+          typeof data[field] === "object" &&
+          !Array.isArray(data[field])
+        ) {
+          data[field] = mapItemRefObject(data[field], idToName);
+        }
+      }
+
       const row = toRow(data);
       const itemType = row.type;
       if (itemType && excludeTypes.includes(itemType)) {
         skippedByType++;
         continue;
       }
-      const id = data.id ?? row.id;
-      const name = row.name;
-      if (id != null && name != null) {
-        const idKey = String(id);
-        idToName[idKey] = name;
-      }
+
       const filteredRow = {};
       for (const col of configColumns) {
         if (Object.prototype.hasOwnProperty.call(row, col)) {
@@ -163,7 +209,7 @@ function main() {
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
-    if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
+    if ((i + 1) % 100 === 0) console.log(`  Parsed (rows) ${i + 1}/${files.length}…`);
   }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
