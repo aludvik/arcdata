@@ -95,7 +95,7 @@ function ensureRepo() {
   const itemsPath = path.join(REPO_DIR, ITEMS_DIR);
   if (fs.existsSync(itemsPath)) {
     console.log("Updating arcraiders-data repo…");
-    const r = spawnSync("git", ["pull"], { cwd: REPO_DIR, stdio: "inherit" });
+    const r = spawnSync("git", ["pull", "--ff-only"], { cwd: REPO_DIR, stdio: "inherit" });
     if (r.status !== 0) throw new Error("git pull failed");
     return;
   }
