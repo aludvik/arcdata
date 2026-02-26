@@ -131,6 +131,12 @@ function loadConfig() {
   return { configColumns, excludeTypes, excludeTypesPath: EXCLUDE_TYPES_PATH };
 }
 
+function shouldSkip(normalized, excludeTypes) {
+  const itemType = normalized.type;
+  const value = normalized.value;
+  return (itemType && excludeTypes.includes(itemType)) || (value === null || value === undefined);
+}
+
 function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
   const items = [];
   const idToName = {};
@@ -153,8 +159,7 @@ function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
       }
 
       const normalized = normalizeItem(data);
-      const itemType = normalized.type;
-      if (itemType && excludeTypes.includes(itemType)) {
+      if (shouldSkip(normalized, excludeTypes)) {
         skippedByType++;
         continue;
       }
