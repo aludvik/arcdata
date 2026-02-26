@@ -1,14 +1,18 @@
 import React from "react";
 
 function formatCellValue(row, col, idToName) {
+  const substitions = {
+    stackSize: 1,
+    foundIn: "Unknown"
+  }
   const defaultValue = "-";
 
   const value = row[col];
   if (value === undefined || value === null || value === "") {
-    if (col === "stackSize") {
-      return { text: String(1), isEmpty: false };
-    }
-    return { text: defaultValue, isEmpty: true };
+    const substitution = substitions[col];
+    return substitution
+    ? { text: String(substitution), isEmpty: false }
+    : { text: defaultValue, isEmpty: true }
   }
 
   if (Array.isArray(value)) {
