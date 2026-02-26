@@ -131,14 +131,17 @@ function loadConfig() {
   return { configColumns, excludeTypes, excludeTypesPath: EXCLUDE_TYPES_PATH };
 }
 
-function buildIdToName(files) {
+function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
+  const items = [];
   const idToName = {};
+  let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
+
       const id = data.id;
       let name = data.name;
       if (name && typeof name === "object" && !Array.isArray(name) && isLocaleMap(name)) {
@@ -148,24 +151,6 @@ function buildIdToName(files) {
         const idKey = String(id);
         idToName[idKey] = name;
       }
-    } catch (e) {
-      console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
-    }
-    if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
-  }
-
-  return idToName;
-}
-
-function buildItems(files, configColumns, excludeTypes) {
-  const items = [];
-  let skippedByType = 0;
-
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i];
-    try {
-      const raw = fs.readFileSync(filePath, "utf8");
-      const data = JSON.parse(raw);
 
       const normalized = normalizeItem(data);
       const itemType = normalized.type;
@@ -184,10 +169,10 @@ function buildItems(files, configColumns, excludeTypes) {
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
-    if ((i + 1) % 100 === 0) console.log(`  Parsed (items) ${i + 1}/${files.length}…`);
+    if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
   }
 
-  return { items, skippedByType };
+  return { items, idToName, skippedByType };
 }
 
 function main() {
@@ -197,8 +182,11 @@ function main() {
   const files = listItemFiles();
   console.log(`Found ${files.length} item files.`);
 
-  const idToName = buildIdToName(files);
-  const { items, skippedByType } = buildItems(files, configColumns, excludeTypes);
+  const { items, idToName, skippedByType } = buildItemsAndIdIndex(
+    files,
+    configColumns,
+    excludeTypes,
+  );
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(
