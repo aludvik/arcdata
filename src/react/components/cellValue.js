@@ -53,7 +53,7 @@ export function formatCellValue(row, col, idToName, craftBenchIdToName) {
   }
 
   if (Array.isArray(value)) {
-    return { text: value.join(", "), isEmpty: false };
+    return { text: value.toSorted().join(", "), isEmpty: false };
   }
 
   if (typeof value === "object") {
