@@ -8,6 +8,7 @@ export function App() {
   const [columns, setColumns] = useState([]);
   const [numericColumns, setNumericColumns] = useState(() => new Set());
   const [idToName, setIdToName] = useState(() => ({}));
+  const [craftBenchIdToName, setCraftBenchIdToName] = useState(() => ({}));
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,25 +18,28 @@ export function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemsRes, columnsRes, idToNameRes] = await Promise.all([
+        const [itemsRes, columnsRes, idToNameRes, craftBenchIdToNameRes] = await Promise.all([
           fetch("data/items.json"),
           fetch("columns.json"),
           fetch("data/itemIdToName.json"),
+          fetch("data/craftBenchIdToName.json"),
         ]);
 
-        if (!itemsRes.ok || !columnsRes.ok || !idToNameRes.ok) {
+        if (!itemsRes.ok || !columnsRes.ok || !idToNameRes.ok || !craftBenchIdToNameRes.ok) {
           throw new Error("Failed to load data");
         }
 
-        const [itemsData, columnsData, idToNameData] = await Promise.all([
+        const [itemsData, columnsData, idToNameData, craftBenchIdToNameData] = await Promise.all([
           itemsRes.json(),
           columnsRes.json(),
           idToNameRes.json(),
+          craftBenchIdToNameRes.json(),
         ]);
 
         setItems(itemsData);
         setColumns(columnsData);
         setIdToName(idToNameData);
+        setCraftBenchIdToName(craftBenchIdToNameData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
         setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
         setError(null);
@@ -116,6 +120,7 @@ export function App() {
               sortDirection={sortDirection}
               onSortChange={handleSortChange}
               idToName={idToName}
+              craftBenchIdToName={craftBenchIdToName}
             />
           )}
         </div>

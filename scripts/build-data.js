@@ -213,6 +213,8 @@ function buildCraftBenchIndex(files) {
     }
   }
 
+  craftBenchIdToName["in_raid"] = "In-Raid";
+
   return craftBenchIdToName;
 }
 

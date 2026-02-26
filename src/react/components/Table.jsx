@@ -9,6 +9,7 @@ export function Table({
   sortDirection,
   onSortChange,
   idToName,
+  craftBenchIdToName,
 }) {
   return (
     <table id="table" className="table">
@@ -21,7 +22,12 @@ export function Table({
         />
       </thead>
       <tbody>
-        <TableBody columns={columns} rows={rows} idToName={idToName} />
+        <TableBody
+          columns={columns}
+          rows={rows}
+          idToName={idToName}
+          craftBenchIdToName={craftBenchIdToName}
+        />
       </tbody>
     </table>
   );

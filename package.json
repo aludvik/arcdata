@@ -8,6 +8,7 @@
     "build-react": "esbuild src/react/main.jsx --bundle --outfile=public/app-react.js --format=iife --loader:.jsx=jsx",
     "build": "npm run build-data && npm run build-react",
     "start": "node scripts/serve.js",
-    "dev": "npm run build && npm run start"
+    "dev": "npm run build && npm run start",
+    "test": "node src/react/components/Row.test.js"
   }
 }
