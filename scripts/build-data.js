@@ -20,6 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_URL = "https://github.com/RaidTheory/arcraiders-data.git";
 const REPO_DIR = path.join(__dirname, "..", "repos", "arcraiders-data");
 const ITEMS_DIR = "items";
+const HIDEOUT_DIR = "hideout";
 const OUT_DIR = path.join(__dirname, "..", "public", "data");
 const ITEM_REF_FIELDS = ["recipe", "recyclesInto", "salvagesInto", "upgradeCost", "repairCost"];
 
@@ -112,6 +113,14 @@ function listItemFiles() {
     .map((e) => path.join(itemsPath, e.name));
 }
 
+function listHideoutFiles() {
+  const hideoutPath = path.join(REPO_DIR, HIDEOUT_DIR);
+  return fs
+    .readdirSync(hideoutPath, { withFileTypes: true })
+    .filter((e) => e.isFile() && e.name.endsWith(".json"))
+    .map((e) => path.join(hideoutPath, e.name));
+}
+
 function loadConfig() {
   const COLUMNS_PATH = path.join(__dirname, "..", "public", "columns.json");
   const EXCLUDE_TYPES_PATH = path.join(__dirname, "..", "public", "exclude_types.json");
@@ -180,6 +189,33 @@ function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
   return { items, idToName, skippedByType };
 }
 
+function buildCraftBenchIndex(files) {
+  const craftBenchIdToName = {};
+
+  for (let i = 0; i < files.length; i++) {
+    const filePath = files[i];
+    try {
+      const raw = fs.readFileSync(filePath, "utf8");
+      const data = JSON.parse(raw);
+
+      const id = data.id;
+      let name = data.name;
+      if (name && typeof name === "object" && !Array.isArray(name) && isLocaleMap(name)) {
+        name = pickLocale(name);
+      }
+
+      if (id != null && name != null) {
+        const idKey = String(id);
+        craftBenchIdToName[idKey] = name;
+      }
+    } catch (e) {
+      console.warn(`Skip hideout ${path.basename(filePath)}: ${e.message}`);
+    }
+  }
+
+  return craftBenchIdToName;
+}
+
 function main() {
   const { configColumns, excludeTypes, excludeTypesPath } = loadConfig();
 
@@ -193,13 +229,22 @@ function main() {
     excludeTypes,
   );
 
+  const hideoutFiles = listHideoutFiles();
+  console.log(`Found ${hideoutFiles.length} hideout files.`);
+  const craftBenchIdToName = buildCraftBenchIndex(hideoutFiles);
+
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(
     path.join(OUT_DIR, "items.json"),
     JSON.stringify(items, null, 0),
     "utf8"
   );
-  const meta = { lang: USER_LANG, itemCount: items.length, columnCount: configColumns.length };
+  const meta = {
+    lang: USER_LANG,
+    itemCount: items.length,
+    columnCount: configColumns.length,
+    craftBenchCount: Object.keys(craftBenchIdToName).length,
+  };
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
     JSON.stringify(meta, null, 2),
@@ -208,6 +253,11 @@ function main() {
   fs.writeFileSync(
     path.join(OUT_DIR, "idToName.json"),
     JSON.stringify(idToName, null, 0),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.join(OUT_DIR, "craftBenchIdToName.json"),
+    JSON.stringify(craftBenchIdToName, null, 0),
     "utf8"
   );
   console.log(`Wrote ${items.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);
