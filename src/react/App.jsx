@@ -20,7 +20,7 @@ export function App() {
         const [itemsRes, columnsRes, idToNameRes] = await Promise.all([
           fetch("data/items.json"),
           fetch("columns.json"),
-          fetch("data/idToName.json"),
+          fetch("data/itemIdToName.json"),
         ]);
 
         if (!itemsRes.ok || !columnsRes.ok || !idToNameRes.ok) {

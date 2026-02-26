@@ -80,7 +80,7 @@ function normalizeItem(data) {
     }
     if (ITEM_REF_FIELDS.includes(key)) {
       // Keep structured reference objects (e.g. recipe) as-is so the app can
-      // decide how to render them using indices like idToName.json.
+      // decide how to render them using indices like itemIdToName.json.
       normalized[key] = value;
       continue;
     }
@@ -251,7 +251,7 @@ function main() {
     "utf8"
   );
   fs.writeFileSync(
-    path.join(OUT_DIR, "idToName.json"),
+    path.join(OUT_DIR, "itemIdToName.json"),
     JSON.stringify(idToName, null, 0),
     "utf8"
   );

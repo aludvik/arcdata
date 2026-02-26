@@ -52,7 +52,7 @@ Then open `http://localhost:3777` in your browser to use the app.
   - The processed result is written to:
     - `public/data/items.json` – array of normalized items shown in the UI.
     - `public/data/meta.json` – metadata (e.g. chosen language, item count, number of craft benches).
-    - `public/data/idToName.json` – object mapping each item’s internal `id` to its localized display `name`, used by the React app to resolve ID-based relationships (e.g. recipes) at render time.
+    - `public/data/itemIdToName.json` – object mapping each item’s internal `id` to its localized display `name`, used by the React app to resolve ID-based relationships (e.g. recipes) at render time.
     - `public/data/craftBenchIdToName.json` – object mapping each craft bench’s internal `id` (from hideout data) to its localized display `name`, used by the React app to resolve craft bench IDs to readable names (e.g. the `craftBench` column).
   - Column definitions live in `public/columns.json` (manually maintained; the build script does not emit this file).
 
