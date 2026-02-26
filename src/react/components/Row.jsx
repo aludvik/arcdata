@@ -1,8 +1,14 @@
 import React from "react";
 
-function formatCellValue(value, idToName) {
+function formatCellValue(row, col, idToName) {
+  const defaultValue = "-";
+
+  const value = row[col];
   if (value === undefined || value === null || value === "") {
-    return { text: "", isEmpty: true };
+    if (col === "stackSize") {
+      return { text: String(1), isEmpty: false };
+    }
+    return { text: defaultValue, isEmpty: true };
   }
 
   if (Array.isArray(value)) {
@@ -12,7 +18,7 @@ function formatCellValue(value, idToName) {
   if (typeof value === "object") {
     const entries = Object.entries(value);
     if (entries.length === 0) {
-      return { text: "", isEmpty: true };
+      return { text: defaultValue, isEmpty: true };
     }
 
     const pairs = entries.map(([rawKey, rawVal]) => {
@@ -41,8 +47,7 @@ export function Row({ columns, row, idToName }) {
   return (
     <tr>
       {columns.map((col) => {
-        const value = row[col];
-        const { text, isEmpty } = formatCellValue(value, idToName);
+        const { text, isEmpty } = formatCellValue(row, col, idToName);
 
         return (
           <td
