@@ -1,14 +1,14 @@
 :root {
-  --bg: #0f1419;
-  --surface: #1a2332;
-  --border: #2d3a4d;
-  --text: #e6edf3;
-  --muted: #8b949e;
-  --accent: #58a6ff;
-  --header-bg: #161b22;
-  --row-hover: rgba(88, 166, 255, 0.06);
+  --bg: #0d1117;
+  --surface: #151b24;
+  --border: #363d52;
+  --text: #f0f4f8;
+  --muted: #9ca3af;
+  --accent: #f59e0b;
+  --header-bg: #12161d;
+  --row-hover: rgba(245, 158, 11, 0.08);
   /* Opaque equivalent of --row-hover on --surface, for sticky first column so nothing shows through */
-  --row-hover-solid: #1e2b3e;
+  --row-hover-solid: #272522;
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
   /* Height of the app header (SearchBar) so the table header sticks below it */
   --app-header-height: 6rem;
@@ -89,7 +89,7 @@ body {
 
 #search:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
 }
 
 .count {
