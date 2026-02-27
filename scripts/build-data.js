@@ -66,6 +66,10 @@ function normalizeItem(data) {
       normalized[key] = value;
       continue;
     }
+    if (typeof value === "string" && value.includes(",")) {
+        normalized[key] = value.split(",");
+        continue;
+    }
     if (typeof value !== "object") {
       normalized[key] = value;
       continue;
