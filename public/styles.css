@@ -124,7 +124,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 275px;
+  max-width: 300px;
 }
 
 .table th {
