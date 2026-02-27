@@ -12,6 +12,7 @@ export function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -74,6 +75,15 @@ export function App() {
     setSearchTerm("");
   };
 
+  const handleRowExpandToggle = (rowKey) => {
+    setExpandedRowKeys((prev) => {
+      if (!Array.isArray(prev)) return [rowKey];
+      return prev.includes(rowKey)
+        ? prev.filter((key) => key !== rowKey)
+        : [...prev, rowKey];
+    });
+  };
+
   const filteredItems = useMemo(
     () => filterItems(items, columns, searchTerm),
     [items, columns, searchTerm],
@@ -121,6 +131,8 @@ export function App() {
               onSortChange={handleSortChange}
               idToName={idToName}
               craftBenchIdToName={craftBenchIdToName}
+              expandedRowKeys={expandedRowKeys}
+              onRowExpandToggle={handleRowExpandToggle}
             />
           )}
         </div>

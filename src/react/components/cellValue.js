@@ -4,9 +4,13 @@
  * @param {string} col - Column name
  * @param {Record<string, string>} [idToName] - Item ID → display name
  * @param {Record<string, string>} [craftBenchIdToName] - Craft bench ID → display name
+ * @param {{ expanded?: boolean }} [options] - Optional formatting options
  * @returns {{ text: string, isEmpty: boolean }}
  */
-export function formatCellValue(row, col, idToName, craftBenchIdToName) {
+export function formatCellValue(row, col, idToName, craftBenchIdToName, options = {}) {
+  const expanded = options.expanded === true;
+  const separator = expanded ? "\n" : ", ";
+
   const substitions = {
     stackSize: 1,
     foundIn: "Unknown",
@@ -48,12 +52,13 @@ export function formatCellValue(row, col, idToName, craftBenchIdToName) {
       return { text: defaultValue, isEmpty: true };
     }
 
-    const text = parts.join(", ");
+    const text = parts.join(separator);
     return { text, isEmpty: false };
   }
 
   if (Array.isArray(value)) {
-    return { text: value.toSorted().join(", "), isEmpty: false };
+    const sorted = [...value].sort();
+    return { text: sorted.join(separator), isEmpty: false };
   }
 
   if (typeof value === "object") {
@@ -78,7 +83,7 @@ export function formatCellValue(row, col, idToName, craftBenchIdToName) {
       return `${displayKey}: ${valText}`;
     });
 
-    return { text: pairs.join(", "), isEmpty: false };
+    return { text: pairs.join(separator), isEmpty: false };
   }
 
   return { text: String(value), isEmpty: false };

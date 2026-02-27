@@ -10,6 +10,8 @@ export function Table({
   onSortChange,
   idToName,
   craftBenchIdToName,
+  expandedRowKeys,
+  onRowExpandToggle,
 }) {
   return (
     <table id="table" className="table">
@@ -27,6 +29,8 @@ export function Table({
           rows={rows}
           idToName={idToName}
           craftBenchIdToName={craftBenchIdToName}
+          expandedRowKeys={expandedRowKeys}
+          onRowExpandToggle={onRowExpandToggle}
         />
       </tbody>
     </table>

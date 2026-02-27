@@ -81,6 +81,30 @@ function runTests() {
   result = formatCellValue(row, "name", {}, craftBenchIdToName);
   assert.strictEqual(result.text, "Foo", "non-craftBench column unchanged");
   assert.strictEqual(result.isEmpty, false);
+
+  // Expanded mode: craftBench uses newlines instead of commas
+  row = { craftBench: "equipment_bench,explosives_bench" };
+  result = formatCellValue(row, "craftBench", {}, craftBenchIdToName, {
+    expanded: true,
+  });
+  assert.strictEqual(
+    result.text,
+    "Gear Bench\nExplosives Station",
+    "expanded craftBench joins with newlines",
+  );
+  assert.strictEqual(result.isEmpty, false);
+
+  // Expanded mode: generic array column uses newlines
+  row = { tags: ["alpha", "beta"] };
+  result = formatCellValue(row, "tags", {}, craftBenchIdToName, {
+    expanded: true,
+  });
+  assert.strictEqual(
+    result.text,
+    "alpha\nbeta",
+    "expanded array joins with newlines",
+  );
+  assert.strictEqual(result.isEmpty, false);
 }
 
 runTests();
