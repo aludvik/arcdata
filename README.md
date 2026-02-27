@@ -1,8 +1,10 @@
 ## Arc Raiders Item Browser
 
-This project is a small local web application for browsing and searching **ARC Raiders** item data.  
+This project is a small static web application for browsing and searching **ARC Raiders** item data.  
 It consumes community-maintained JSON data from [(RaidTheory/arcraiders-data)](https://github.com/RaidTheory/arcraiders-data) 
 and presents it in a fast, spreadsheet-like interface with keyword search.
+
+The page is hosted with GitHub pages at [aludvik.github.io/arcdata-public](https://aludvik.github.io/arcdata-public).
 
 ### Features
 
