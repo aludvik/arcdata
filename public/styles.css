@@ -97,6 +97,35 @@ body {
   color: var(--muted);
 }
 
+.row-expand-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.header-btn {
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+}
+
+.header-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.header-btn:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+
 .table-wrap {
   overflow: auto;
   max-height: calc(100vh - var(--app-header-height) - 2rem);

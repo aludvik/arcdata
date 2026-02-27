@@ -84,6 +84,14 @@ export function App() {
     });
   };
 
+  const handleExpandAllRows = () => {
+    setExpandedRowKeys(sortedItems.map((row, i) => row.id ?? i));
+  };
+
+  const handleCollapseAllRows = () => {
+    setExpandedRowKeys([]);
+  };
+
   const filteredItems = useMemo(
     () => filterItems(items, columns, searchTerm),
     [items, columns, searchTerm],
@@ -107,6 +115,8 @@ export function App() {
         onSearchClear={handleSearchClear}
         totalCount={totalCount}
         filteredCount={filteredCount}
+        onExpandAllRows={handleExpandAllRows}
+        onCollapseAllRows={handleCollapseAllRows}
       />
       <main className="main">
         <div className="table-wrap">

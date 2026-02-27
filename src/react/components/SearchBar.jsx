@@ -6,6 +6,8 @@ export function SearchBar({
   onSearchClear,
   totalCount,
   filteredCount,
+  onExpandAllRows,
+  onCollapseAllRows,
 }) {
   const handleInputChange = (event) => {
     onSearchChange(event.target.value);
@@ -46,6 +48,26 @@ export function SearchBar({
           onKeyDown={handleKeyDown}
         />
         <span className="count">{countText}</span>
+        <div className="row-expand-actions">
+          <button
+            type="button"
+            className="header-btn"
+            onClick={onExpandAllRows}
+            title="Expand all rows"
+            aria-label="Expand all rows"
+          >
+            + Expand
+          </button>
+          <button
+            type="button"
+            className="header-btn"
+            onClick={onCollapseAllRows}
+            title="Collapse all rows"
+            aria-label="Collapse all rows"
+          >
+            - Collapse
+          </button>
+        </div>
       </div>
     </header>
   );
