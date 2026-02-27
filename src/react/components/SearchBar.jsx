@@ -25,17 +25,19 @@ export function SearchBar({
 
   return (
     <header className="header">
-      <h1>Arc Raiders Item Browser</h1>
-      <p className="subtitle">
-        Data from{" "}
-        <a
-          href="https://github.com/RaidTheory/arcraiders-data"
-          target="_blank"
-          rel="noopener"
-        >
-          RaidTheory/arcraiders-data
-        </a>
-      </p>
+      <div className="title-row">
+        <h1>ArcData</h1>
+        <p className="subtitle">
+          Data from{" "}
+          <a
+            href="https://github.com/RaidTheory/arcraiders-data"
+            target="_blank"
+            rel="noopener"
+          >
+            RaidTheory/arcraiders-data
+          </a>
+        </p>
+      </div>
       <div className="search-wrap">
         <label htmlFor="search">Search</label>
         <input

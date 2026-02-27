@@ -32,20 +32,20 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 1rem 1.5rem;
+  padding: 0.75em;
   background: var(--header-bg);
   border-bottom: 1px solid var(--border);
 }
 
 .header h1 {
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0 0;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
 .subtitle {
-  margin: 0 0 1rem 0;
-  font-size: 0.8rem;
+  margin: 0 0 0 0;
+  font-size: 0.7rem;
   color: var(--muted);
 }
 
@@ -69,6 +69,13 @@ body {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0 0 0.25em 0;
 }
 
 #search {
