@@ -9,6 +9,7 @@
     "build": "npm run build-data && npm run build-react",
     "start": "node scripts/serve.js",
     "dev": "npm run build && npm run start",
-    "test": "node src/react/components/Row.test.js"
+    "test": "node src/react/components/Row.test.js",
+    "publish": "npm run build && cp -R public/* repos/arcdata-public/"
   }
 }
