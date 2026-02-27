@@ -225,6 +225,14 @@ body {
   background: var(--row-hover-solid);
 }
 
+/* On narrow mobile portrait screens, shrink the first column a bit */
+@media (max-width: 600px) and (orientation: portrait) {
+  .table th:first-child,
+  .table td:first-child {
+    max-width: 200px;
+  }
+}
+
 .sort-arrow {
   opacity: 0;
   margin-left: 0.15em;
