@@ -1,0 +1,66 @@
+Product Goal: 
+Build a tool that helps players plan out what they want to store in their stash based on the loadouts they want to use.
+- Show items that recycle into needed items
+- Show items that can be used to craft needed items
+
+Non-goals:
+- Don't display all info about every item. Focus info needed to plan stash for loadouts.
+    - Ignore items not used in loadouts.
+    - Ignore item details, focus on crafting, recycling, the item tree
+- First version, focus on a single loadout. Second version, add all loadouts merge inputs
+
+Backlog
+- [5] Loadout Builder
+- [5] Loot Guide
+---
+- [x] Analytics to see page visits
+- [x] Improve mobile experience
+- [x] Add backlink to git repo (GitHub icon)
+- [x] Put public URL in README
+- [x] Update build output to public repo
+- [x] Publish to a free hosting service like GitHub pages
+- [x] Expand long text, each value on a separate line
+- [x] Pin item name while scrolling horizontally
+- [x] Pin top header row while scrolling vertically
+- [x] Reformat craftbench values to be non-ids
+- [x] Remove anything with nothing in the "value" column from output data
+- [x] Fill in missing values
+- [x] Add row sorting
+- [x] Get rid of unnecessary columns
+- [x] Change column sort (move ID to end)
+- [x] Substitute IDs for names in crafting, recycling lists
+- [x] Use commas instead of new lines when displaying horizontally
+- [x] Convert to React for frontend
+- [x] Move data flattening to app
+
+
+Loadout Builder
+- Checkbox to select an item for a loadout
+- Selected items stay pinned to the top
+
+Loot Guide
+- Bottom pane shows the loot guide
+- Left pane shows a tree of items that should be collected to maintain the loadout
+- Right pane shows items that can be recycled into items that should be collected to maintain the loadout
+
+Improve mobile experience
+- Reduce size of header, inline link to data repo
+- Make max width smaller for name in portrait mode
+
+xxx Move data flattening to app xxx
+- Pipeline outputs structured data, defer flattening rows to renderRow
+- Pipeline just focuses on filtering and 
+  - Reducing the size of data to load for faster start time
+  - Restructuring data
+  - Building any indices that are needed (idToName, trees)
+- Renderer handles
+  - Flattening the structure
+  - Substituting names for IDs
+  - Formatting multi-line text as either a comma-separate list or a   
+    multi-line row
+
+xxx Fill in missing values xxx
+- [x] Stack size is always a minimum of 1
+- [ ] Are tattered clothes and prickly pear missing weight?
+- [x] Is repair cost missing data?
+- [x] Everything else defaults to "-": foundIn, compatibleWith, craftBench, recipe, recyclesInto, salvagesInto, upgradeCost, repairCost

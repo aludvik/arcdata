@@ -1,0 +1,30 @@
+- The loot guide is a tool that helps users understand the relationships between items.
+- The loot guide is displayed on the bottom of the app in a separate section that splits the
+  screen horizontally. 
+- The loot guide takes as input a selection of items that has been made by the user in the
+  items spreadsheet.
+- The loot guide is only displayed when the user has selected one or more items in the main
+  spreadsheet part of the app.
+- The loot guide can be minized by the user by clicking a button.
+- The main feature of the loot guide is the crafting guide.
+- The crafting guide displays a directed graph of all the items selected, all the items that
+  can be used to craft the selected items, and all the items that can be used to craft the
+  crafting items, and so on recursively until only non-craftable items are left.
+- The crafting guide also shows, on the edge from item to item, the number of input items
+  needed to craft the output item.
+- In addition to the crafting guide, the loot guide can display similar graphs showing what
+  the selected items can be salvaged into or recycled into.
+
+Steps to build this feature
+- [ ] Move itemIdToName index generation to app
+- [ ] Rename craftBenchIdToName.json to benches.json
+- [ ] Combine recipe/upgrade data into a single crafting column
+- [ ] Build indices for looking up crafting, recycling, salvaging data by item ID in app
+- [ ] Implement and test utility methods for building a tree from indices
+- [ ] Combine indices into single object to reduce number of arguments passed
+- [ ] Add UI to select items, selected items stay at the top of the sheet
+- [ ] Add a bottom panel that displays when items are selected
+- [ ] Render the crafting tree in the bottom panel
+- [ ] Label the edges with item quantities
+- [ ] Add tabs for recycling, salvaging trees (or display all at once)
+- [ ] Add drawer button for opening, closing bottom panel
