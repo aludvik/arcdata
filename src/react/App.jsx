@@ -19,23 +19,31 @@ export function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemsRes, columnsRes, idToNameRes, craftBenchIdToNameRes] = await Promise.all([
+        const [itemsRes, columnsRes, craftBenchIdToNameRes] = await Promise.all([
           fetch("data/items.json"),
           fetch("columns.json"),
-          fetch("data/itemIdToName.json"),
           fetch("data/craftBenchIdToName.json"),
         ]);
 
-        if (!itemsRes.ok || !columnsRes.ok || !idToNameRes.ok || !craftBenchIdToNameRes.ok) {
+        if (!itemsRes.ok || !columnsRes.ok || !craftBenchIdToNameRes.ok) {
           throw new Error("Failed to load data");
         }
 
-        const [itemsData, columnsData, idToNameData, craftBenchIdToNameData] = await Promise.all([
+        const [itemsData, columnsData, craftBenchIdToNameData] = await Promise.all([
           itemsRes.json(),
           columnsRes.json(),
-          idToNameRes.json(),
           craftBenchIdToNameRes.json(),
         ]);
+
+        const indexStart = performance.now();
+        const idToNameData = Object.fromEntries(
+          itemsData
+            .filter((row) => row.id != null && row.name != null)
+            .map((row) => [String(row.id), row.name]),
+        );
+        const indexMs = performance.now() - indexStart;
+        // eslint-disable-next-line no-console
+        console.log(`itemIdToName index built in ${indexMs.toFixed(2)} ms`);
 
         setItems(itemsData);
         setColumns(columnsData);

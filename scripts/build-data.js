@@ -7,8 +7,8 @@
  * - Dataset reduction: filter out unwanted item types and top-level properties.
  * - Light normalization: resolve locale maps to a single language and keep
  *   reference fields as structured objects keyed by IDs.
- * - Index building: precompute simple lookup maps (e.g. ID → name) needed by
- *   the app at runtime so they don't need to be built on startup.
+ * - Index building: precompute craft-bench ID → name from hideout data; the
+ *   app builds the item ID → name index from items.json at load time.
  */
 
 import fs from "fs";
@@ -84,7 +84,7 @@ function normalizeItem(data) {
     }
     if (ITEM_REF_FIELDS.includes(key)) {
       // Keep structured reference objects (e.g. recipe) as-is so the app can
-      // decide how to render them using indices like itemIdToName.json.
+      // decide how to render them using an item ID → name index built from items.
       normalized[key] = value;
       continue;
     }
@@ -150,9 +150,8 @@ function shouldSkip(normalized, excludeTypes) {
   return (itemType && excludeTypes.includes(itemType)) || (value === null || value === undefined);
 }
 
-function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
+function buildItems(files, configColumns, excludeTypes) {
   const items = [];
-  const idToName = {};
   let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
@@ -160,16 +159,6 @@ function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       const data = JSON.parse(raw);
-
-      const id = data.id;
-      let name = data.name;
-      if (name && typeof name === "object" && !Array.isArray(name) && isLocaleMap(name)) {
-        name = pickLocale(name);
-      }
-      if (id != null && name != null) {
-        const idKey = String(id);
-        idToName[idKey] = name;
-      }
 
       const normalized = normalizeItem(data);
       if (shouldSkip(normalized, excludeTypes)) {
@@ -190,7 +179,7 @@ function buildItemsAndIdIndex(files, configColumns, excludeTypes) {
     if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
   }
 
-  return { items, idToName, skippedByType };
+  return { items, skippedByType };
 }
 
 function buildCraftBenchIndex(files) {
@@ -229,11 +218,7 @@ function main() {
   const files = listItemFiles();
   console.log(`Found ${files.length} item files.`);
 
-  const { items, idToName, skippedByType } = buildItemsAndIdIndex(
-    files,
-    configColumns,
-    excludeTypes,
-  );
+  const { items, skippedByType } = buildItems(files, configColumns, excludeTypes);
 
   const hideoutFiles = listHideoutFiles();
   console.log(`Found ${hideoutFiles.length} hideout files.`);
@@ -254,11 +239,6 @@ function main() {
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
     JSON.stringify(meta, null, 2),
-    "utf8"
-  );
-  fs.writeFileSync(
-    path.join(OUT_DIR, "itemIdToName.json"),
-    JSON.stringify(idToName, null, 0),
     "utf8"
   );
   fs.writeFileSync(
