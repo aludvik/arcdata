@@ -1,18 +1,1 @@
-[
-  "name",
-  "type",
-  "rarity",
-  "value",
-  "weightKg",
-  "stackSize",
-  
-  "craftBench",
-  "recipe",
-  "recyclesInto",
-  "salvagesInto",
-  "upgradeCost",
-  "repairCost",
-
-  "updatedAt",
-  "id"
-]
+["name","type","rarity","value","weightKg","stackSize","craftBench","recipe","recyclesInto","salvagesInto","repairCost","updatedAt","id"]

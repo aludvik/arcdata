@@ -150,8 +150,29 @@ function shouldSkip(normalized, excludeTypes) {
   return (itemType && excludeTypes.includes(itemType)) || (value === null || value === undefined);
 }
 
+/**
+ * Build a map of upgrade targets: for each item B that is the target of
+ * upgradesTo from some item A, store B's id -> { sourceId: A.id, upgradeCost }.
+ * Used to set B's recipe = (A + A.upgradeCost) and to drop upgradeCost from output.
+ */
+function buildUpgradeTargetToSource(normalizedItems) {
+  const map = new Map();
+  for (const item of normalizedItems) {
+    if (item.upgradesTo == null) continue;
+    const targetId = String(item.upgradesTo);
+    const upgradeCost =
+      item.upgradeCost != null &&
+      typeof item.upgradeCost === "object" &&
+      !Array.isArray(item.upgradeCost)
+        ? item.upgradeCost
+        : {};
+    map.set(targetId, { sourceId: String(item.id), upgradeCost });
+  }
+  return map;
+}
+
 function buildItems(files, configColumns, excludeTypes) {
-  const items = [];
+  const allNormalized = [];
   let skippedByType = 0;
 
   for (let i = 0; i < files.length; i++) {
@@ -165,18 +186,33 @@ function buildItems(files, configColumns, excludeTypes) {
         skippedByType++;
         continue;
       }
-
-      const filtered = {};
-      for (const col of configColumns) {
-        if (Object.prototype.hasOwnProperty.call(normalized, col)) {
-          filtered[col] = normalized[col];
-        }
-      }
-      items.push(filtered);
+      allNormalized.push(normalized);
     } catch (e) {
       console.warn(`Skip ${path.basename(filePath)}: ${e.message}`);
     }
     if ((i + 1) % 100 === 0) console.log(`  Parsed ${i + 1}/${files.length}…`);
+  }
+
+  const upgradeTargetToSource = buildUpgradeTargetToSource(allNormalized);
+  const items = [];
+
+  for (const normalized of allNormalized) {
+    const filtered = {};
+    for (const col of configColumns) {
+      if (col === "upgradeCost") continue;
+      if (col === "recipe") {
+        const asTarget = upgradeTargetToSource.get(String(normalized.id));
+        const recipe = asTarget
+          ? { [asTarget.sourceId]: 1, ...asTarget.upgradeCost }
+          : normalized.recipe;
+        if (recipe !== undefined) filtered.recipe = recipe;
+        continue;
+      }
+      if (Object.prototype.hasOwnProperty.call(normalized, col)) {
+        filtered[col] = normalized[col];
+      }
+    }
+    items.push(filtered);
   }
 
   return { items, skippedByType };
@@ -211,7 +247,7 @@ function buildCraftBenchIndex(files) {
   return benches;
 }
 
-const REF_FIELDS_TO_CHECK = ["recipe", "recyclesInto", "salvagesInto", "upgradeCost", "repairCost"];
+const REF_FIELDS_TO_CHECK = ["recipe", "recyclesInto", "salvagesInto", "repairCost"];
 
 /**
  * Log a warning if any item ID referenced in recipe/recyclesInto/salvagesInto

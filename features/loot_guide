@@ -18,7 +18,7 @@
 Steps to build this feature
 - [x] 1. Move itemIdToName index generation to app
 - [x] 2. Rename craftBenchIdToName.json to benches.json
-- [ ] 3. Combine recipe/upgrade data into a single crafting column
+- [x] 3. Combine recipe/upgrade data into a single crafting column
 - [ ] 4. Build indices for looking up crafting, recycling, salvaging data by item ID in app
 - [ ] 5. Implement and test utility methods for building a tree from indices
 - [ ] 6. Combine indices into single object to reduce number of arguments passed
