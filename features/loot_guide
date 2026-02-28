@@ -16,8 +16,8 @@
   the selected items can be salvaged into or recycled into.
 
 Steps to build this feature
-- [ ] 1. Move itemIdToName index generation to app
-- [ ] 2. Rename craftBenchIdToName.json to benches.json
+- [x] 1. Move itemIdToName index generation to app
+- [x] 2. Rename craftBenchIdToName.json to benches.json
 - [ ] 3. Combine recipe/upgrade data into a single crafting column
 - [ ] 4. Build indices for looking up crafting, recycling, salvaging data by item ID in app
 - [ ] 5. Implement and test utility methods for building a tree from indices

@@ -8,7 +8,7 @@ export function App() {
   const [columns, setColumns] = useState([]);
   const [numericColumns, setNumericColumns] = useState(() => new Set());
   const [idToName, setIdToName] = useState(() => ({}));
-  const [craftBenchIdToName, setCraftBenchIdToName] = useState(() => ({}));
+  const [benches, setbenches] = useState(() => ({}));
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,20 +19,20 @@ export function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [itemsRes, columnsRes, craftBenchIdToNameRes] = await Promise.all([
+        const [itemsRes, columnsRes, benchesRes] = await Promise.all([
           fetch("data/items.json"),
           fetch("columns.json"),
-          fetch("data/craftBenchIdToName.json"),
+          fetch("data/benches.json"),
         ]);
 
-        if (!itemsRes.ok || !columnsRes.ok || !craftBenchIdToNameRes.ok) {
+        if (!itemsRes.ok || !columnsRes.ok || !benchesRes.ok) {
           throw new Error("Failed to load data");
         }
 
-        const [itemsData, columnsData, craftBenchIdToNameData] = await Promise.all([
+        const [itemsData, columnsData, benchesData] = await Promise.all([
           itemsRes.json(),
           columnsRes.json(),
-          craftBenchIdToNameRes.json(),
+          benchesRes.json(),
         ]);
 
         const indexStart = performance.now();
@@ -48,7 +48,7 @@ export function App() {
         setItems(itemsData);
         setColumns(columnsData);
         setIdToName(idToNameData);
-        setCraftBenchIdToName(craftBenchIdToNameData);
+        setbenches(benchesData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
         setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
         setError(null);
@@ -148,7 +148,7 @@ export function App() {
               sortDirection={sortDirection}
               onSortChange={handleSortChange}
               idToName={idToName}
-              craftBenchIdToName={craftBenchIdToName}
+              benches={benches}
               expandedRowKeys={expandedRowKeys}
               onRowExpandToggle={handleRowExpandToggle}
             />

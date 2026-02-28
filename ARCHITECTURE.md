@@ -18,7 +18,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
       - Excluding items whose `type` is configured in `public/exclude_types.json`.
       - Resolving locale maps (e.g. `name`, `description`) to a single language.
     - Preserve structured reference fields (e.g. `recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs.
-    - Emit a compact, index-backed model into the `public/data/` directory (`items.json`, `meta.json`, `craftBenchIdToName.json`). The app builds the item ID → name index from `items.json` at load time.
+    - Emit a compact, index-backed model into the `public/data/` directory (`items.json`, `meta.json`, `benches.json`). The app builds the item ID → name index from `items.json` at load time.
 
 - **Static web app (frontend)**  
   - Files: `public/index.html`, `public/app.js`, `public/styles.css`  
@@ -83,7 +83,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
        - `itemCount`: number of items exported.
        - `columnCount`: number of columns (from `public/columns.json`).
        - `craftBenchCount`: number of craft benches indexed from hideout data.
-     - `craftBenchIdToName.json` – flat object mapping each craft bench’s internal `id` (from `hideout/*.json`) to its localized display `name`, using the same localization rules as items (driven by `ARC_DATA_LANG`). This index is used by the React app to render craft bench IDs (e.g. the `craftBench` column) as friendly names.
+     - `benches.json` – flat object mapping each craft bench’s internal `id` (from `hideout/*.json`) to its localized display `name`, using the same localization rules as items (driven by `ARC_DATA_LANG`). This index is used by the React app to render craft bench IDs (e.g. the `craftBench` column) as friendly names.
    - The builder does **not** emit `columns.json`; that file is maintained manually at `public/columns.json`.
 
 4. **Serve and display**
@@ -91,7 +91,7 @@ This document describes the current architecture of the **Arc Raiders Item Brows
    - The frontend loads:
      - `data/items.json` – all rows. From this the app builds an item ID → name index for resolving ID-based relationships (e.g. `recipe`, `recyclesInto`, `salvagesInto`) to human-readable names.
      - `columns.json` – table header definitions (from `public/columns.json`).
-     - `data/craftBenchIdToName.json` – craft bench ID → name index.
+     - `data/benches.json` – craft bench ID → name index.
      - `data/meta.json` – to potentially drive UI or debugging.
 
 ### Frontend Behavior
@@ -140,6 +140,6 @@ This document describes the current architecture of the **Arc Raiders Item Brows
     - Locale-resolved scalar fields (e.g. `name`, `description`).
     - Structured reference fields (`recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs with scalar payloads.
   - The app builds an item ID → localized name index from `items.json` at load time and uses it to render item reference fields.
-  - `data/craftBenchIdToName.json` – craft bench ID → localized name index used to render craft bench IDs as display names.
+  - `data/benches.json` – craft bench ID → localized name index used to render craft bench IDs as display names.
 - Rendering rules for these structured fields (e.g. how to order entries, how to display quantities) are owned by the React components, not the build step.
 

@@ -5,7 +5,7 @@ export function TableBody({
   columns,
   rows,
   idToName,
-  craftBenchIdToName,
+  benches,
   expandedRowKeys = [],
   onRowExpandToggle,
 }) {
@@ -29,7 +29,7 @@ export function TableBody({
             columns={columns}
             row={row}
             idToName={idToName}
-            craftBenchIdToName={craftBenchIdToName}
+            benches={benches}
             isExpanded={isExpanded}
             onRowClick={handleRowClick}
           />

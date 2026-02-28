@@ -183,7 +183,7 @@ function buildItems(files, configColumns, excludeTypes) {
 }
 
 function buildCraftBenchIndex(files) {
-  const craftBenchIdToName = {};
+  const benches = {};
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
@@ -199,16 +199,16 @@ function buildCraftBenchIndex(files) {
 
       if (id != null && name != null) {
         const idKey = String(id);
-        craftBenchIdToName[idKey] = name;
+        benches[idKey] = name;
       }
     } catch (e) {
       console.warn(`Skip hideout ${path.basename(filePath)}: ${e.message}`);
     }
   }
 
-  craftBenchIdToName["in_raid"] = "In-Raid";
+  benches["in_raid"] = "In-Raid";
 
-  return craftBenchIdToName;
+  return benches;
 }
 
 const REF_FIELDS_TO_CHECK = ["recipe", "recyclesInto", "salvagesInto", "upgradeCost", "repairCost"];
@@ -253,7 +253,7 @@ function main() {
 
   const hideoutFiles = listHideoutFiles();
   console.log(`Found ${hideoutFiles.length} hideout files.`);
-  const craftBenchIdToName = buildCraftBenchIndex(hideoutFiles);
+  const benches = buildCraftBenchIndex(hideoutFiles);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(
@@ -265,7 +265,7 @@ function main() {
     lang: USER_LANG,
     itemCount: items.length,
     columnCount: configColumns.length,
-    craftBenchCount: Object.keys(craftBenchIdToName).length,
+    craftBenchCount: Object.keys(benches).length,
   };
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
@@ -273,8 +273,8 @@ function main() {
     "utf8"
   );
   fs.writeFileSync(
-    path.join(OUT_DIR, "craftBenchIdToName.json"),
-    JSON.stringify(craftBenchIdToName, null, 0),
+    path.join(OUT_DIR, "benches.json"),
+    JSON.stringify(benches, null, 0),
     "utf8"
   );
   console.log(`Wrote ${items.length} items and ${configColumns.length} columns to public/data/ (lang: ${USER_LANG})`);

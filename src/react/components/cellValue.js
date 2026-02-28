@@ -3,11 +3,11 @@
  * @param {Record<string, unknown>} row - Row data keyed by column name
  * @param {string} col - Column name
  * @param {Record<string, string>} [idToName] - Item ID → display name
- * @param {Record<string, string>} [craftBenchIdToName] - Craft bench ID → display name
+ * @param {Record<string, string>} [benches] - Craft bench ID → display name
  * @param {{ expanded?: boolean }} [options] - Optional formatting options
  * @returns {{ text: string, isEmpty: boolean }}
  */
-export function formatCellValue(row, col, idToName, craftBenchIdToName, options = {}) {
+export function formatCellValue(row, col, idToName, benches, options = {}) {
   const expanded = options.expanded === true;
   const separator = expanded ? "\n" : ", ";
 
@@ -28,8 +28,8 @@ export function formatCellValue(row, col, idToName, craftBenchIdToName, options 
     const mapBenchId = (raw) => {
       const key = String(raw).trim();
       if (!key || key === "undefined" || key === "null") return null;
-      if (craftBenchIdToName && craftBenchIdToName[key] != null) {
-        return craftBenchIdToName[key];
+      if (benches && benches[key] != null) {
+        return benches[key];
       }
       return key;
     };

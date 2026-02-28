@@ -9,7 +9,7 @@ export function Table({
   sortDirection,
   onSortChange,
   idToName,
-  craftBenchIdToName,
+  benches,
   expandedRowKeys,
   onRowExpandToggle,
 }) {
@@ -28,7 +28,7 @@ export function Table({
           columns={columns}
           rows={rows}
           idToName={idToName}
-          craftBenchIdToName={craftBenchIdToName}
+          benches={benches}
           expandedRowKeys={expandedRowKeys}
           onRowExpandToggle={onRowExpandToggle}
         />

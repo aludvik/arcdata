@@ -5,7 +5,7 @@ export function Row({
   columns,
   row,
   idToName,
-  craftBenchIdToName,
+  benches,
   isExpanded = false,
   onRowClick,
 }) {
@@ -19,7 +19,7 @@ export function Row({
           row,
           col,
           idToName,
-          craftBenchIdToName,
+          benches,
           { expanded: isExpanded },
         );
 
