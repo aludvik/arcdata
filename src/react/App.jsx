@@ -3,11 +3,32 @@ import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
 import { detectNumericColumns, filterItems, sortRows } from "./tableUtils.js";
 
+/**
+ * Build an index mapping item ID -> value for a given field. Only includes rows
+ * where id and the field are present and the field is a plain object (not array).
+ */
+function buildIdToFieldIndex(items, fieldName) {
+  return Object.fromEntries(
+    items
+      .filter(
+        (row) =>
+          row.id != null &&
+          row[fieldName] != null &&
+          typeof row[fieldName] === "object" &&
+          !Array.isArray(row[fieldName]),
+      )
+      .map((row) => [String(row.id), row[fieldName]]),
+  );
+}
+
 export function App() {
   const [items, setItems] = useState([]);
   const [columns, setColumns] = useState([]);
   const [numericColumns, setNumericColumns] = useState(() => new Set());
   const [idToName, setIdToName] = useState(() => ({}));
+  const [idToRecipe, setIdToRecipe] = useState(() => ({}));
+  const [idToRecyclesInto, setIdToRecyclesInto] = useState(() => ({}));
+  const [idToSalvagesInto, setIdToSalvagesInto] = useState(() => ({}));
   const [benches, setbenches] = useState(() => ({}));
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
@@ -41,13 +62,21 @@ export function App() {
             .filter((row) => row.id != null && row.name != null)
             .map((row) => [String(row.id), row.name]),
         );
+        const idToRecipeData = buildIdToFieldIndex(itemsData, "recipe");
+        const idToRecyclesIntoData = buildIdToFieldIndex(itemsData, "recyclesInto");
+        const idToSalvagesIntoData = buildIdToFieldIndex(itemsData, "salvagesInto");
         const indexMs = performance.now() - indexStart;
         // eslint-disable-next-line no-console
-        console.log(`itemIdToName index built in ${indexMs.toFixed(2)} ms`);
+        console.log(
+          `indices built in ${indexMs.toFixed(2)} ms (idToName, idToRecipe, idToRecyclesInto, idToSalvagesInto)`,
+        );
 
         setItems(itemsData);
         setColumns(columnsData);
         setIdToName(idToNameData);
+        setIdToRecipe(idToRecipeData);
+        setIdToRecyclesInto(idToRecyclesIntoData);
+        setIdToSalvagesInto(idToSalvagesIntoData);
         setbenches(benchesData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
         setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
