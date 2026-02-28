@@ -211,6 +211,37 @@ function buildCraftBenchIndex(files) {
   return craftBenchIdToName;
 }
 
+const REF_FIELDS_TO_CHECK = ["recipe", "recyclesInto", "salvagesInto", "upgradeCost", "repairCost"];
+
+/**
+ * Log a warning if any item ID referenced in recipe/recyclesInto/salvagesInto
+ * is not present in the exported items (e.g. excluded by type filter).
+ */
+function warnOnMissingReferencedItems(items) {
+  const includedIds = new Set(
+    items.filter((row) => row.id != null).map((row) => String(row.id)),
+  );
+  const missingRefs = new Set();
+  for (const item of items) {
+    for (const field of REF_FIELDS_TO_CHECK) {
+      const refs = item[field];
+      if (refs != null && typeof refs === "object" && !Array.isArray(refs)) {
+        for (const id of Object.keys(refs)) {
+          const idStr = String(id);
+          if (idStr && !includedIds.has(idStr)) {
+            missingRefs.add(idStr);
+          }
+        }
+      }
+    }
+  }
+  if (missingRefs.size > 0) {
+    console.warn(
+      `Warning: ${missingRefs.size} item ID(s) referenced in recipe/recyclesInto/salvagesInto are not in the exported items (excluded by type or missing): ${[...missingRefs].sort().join(", ")}`,
+    );
+  }
+}
+
 function main() {
   const { configColumns, excludeTypes, excludeTypesPath } = loadConfig();
 
@@ -250,6 +281,7 @@ function main() {
   if (skippedByType > 0) {
     console.log(`Skipped ${skippedByType} items by type filter (from ${excludeTypesPath}).`);
   }
+  warnOnMissingReferencedItems(items);
 }
 
 try {
