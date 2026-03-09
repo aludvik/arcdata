@@ -37,7 +37,7 @@ export function App() {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
   const [craftingDag, setCraftingDag] = useState(() => []);
-  const [sortColumnDag, setSortColumnDag] = useState("names");
+  const [sortColumnDag, setSortColumnDag] = useState("weight");
   const [sortDirectionDag, setSortDirectionDag] = useState("asc");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -192,10 +192,16 @@ export function App() {
     const rows = craftingDag.map((node) => ({
       id: node.itemId,
       names: idToName[node.itemId] ?? node.itemId,
+      weight: node.weight,
     }));
     const dir = sortDirectionDag === "asc" ? 1 : -1;
-    const key = sortColumnDag === "names" ? "names" : "id";
-    return [...rows].sort((a, b) => dir * String(a[key]).localeCompare(String(b[key])));
+    return [...rows].sort((a, b) => {
+      if (sortColumnDag === "weight") {
+        return dir * (Number(a.weight) - Number(b.weight));
+      }
+      const key = sortColumnDag === "names" ? "names" : "id";
+      return dir * String(a[key]).localeCompare(String(b[key]));
+    });
   }, [craftingDag, idToName, sortColumnDag, sortDirectionDag]);
 
   const showLootGuide = craftingDag.length > 0;
@@ -252,7 +258,7 @@ export function App() {
               <h2 className="loot-guide-panel__title">Looting Guide</h2>
               <div className="table-wrap">
                 <Table
-                  columns={["names"]}
+                  columns={["names", "weight"]}
                   rows={dagRows}
                   sortColumn={sortColumnDag}
                   sortDirection={sortDirectionDag}
