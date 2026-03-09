@@ -31,10 +31,9 @@ Steps to build this feature
 - [x] Rename craftBenchIdToName.json to benches.json
 - [x] Combine recipe/upgrade data into a single crafting column
 - [x] Build indices for looking up recipe, recyclesInto, and salvagesInto by item ID in app
+- [x] Scrub salvage inputs
 - [ ] Add UI to select items, selected items stay at the top of the sheet
 - [ ] Add a bottom panel that displays when items are selected
-- [ ] Scrub salvage inputs
-
 - [ ] Implement and test utility methods for building a tree from indices
 - [ ] Combine indices into single object to reduce number of arguments passed
 - [ ] Render the crafting tree in the bottom panel

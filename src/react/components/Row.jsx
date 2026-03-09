@@ -8,12 +8,27 @@ export function Row({
   benches,
   isExpanded = false,
   onRowClick,
+  isSelected = false,
+  onSelectionToggle,
 }) {
+  const trClassName = [isExpanded ? "row-expanded" : null, isSelected ? "row-selected" : null]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
   return (
-    <tr
-      className={isExpanded ? "row-expanded" : undefined}
-      onClick={onRowClick}
-    >
+    <tr className={trClassName} onClick={onRowClick}>
+      {onSelectionToggle != null ? (
+        <td onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onSelectionToggle}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={isSelected ? "Deselect item" : "Select item"}
+            aria-checked={isSelected}
+          />
+        </td>
+      ) : null}
       {columns.map((col) => {
         const { text, isEmpty } = formatCellValue(
           row,

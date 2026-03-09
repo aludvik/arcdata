@@ -9,6 +9,7 @@
   --row-hover: rgba(245, 158, 11, 0.08);
   /* Opaque equivalent of --row-hover on --surface, for sticky first column so nothing shows through */
   --row-hover-solid: #272522;
+  --row-selected: rgba(245, 158, 11, 0.18);
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
   /* Height of the app header (SearchBar) so the table header sticks below it */
   --app-header-height: 6rem;
@@ -249,6 +250,14 @@ body {
 
 .table tbody tr:hover td {
   background: var(--row-hover);
+}
+
+.table tr.row-selected td {
+  background: var(--row-selected);
+}
+
+.table tr.row-selected:hover td {
+  background: var(--row-selected);
 }
 
 .table td {

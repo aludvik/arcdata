@@ -12,6 +12,8 @@ export function Table({
   benches,
   expandedRowKeys,
   onRowExpandToggle,
+  selectedItemIds,
+  onSelectionToggle,
 }) {
   return (
     <table id="table" className="table">
@@ -31,6 +33,8 @@ export function Table({
           benches={benches}
           expandedRowKeys={expandedRowKeys}
           onRowExpandToggle={onRowExpandToggle}
+          selectedItemIds={selectedItemIds}
+          onSelectionToggle={onSelectionToggle}
         />
       </tbody>
     </table>

@@ -60,8 +60,34 @@ export function compareValues(a, b, col, numericColumns) {
   return String(a).localeCompare(String(b), undefined, { sensitivity: "base" });
 }
 
-export function sortRows(rows, sortColumn, sortDirection, columns, numericColumns) {
-  if (!sortColumn || !columns.includes(sortColumn)) return rows;
+export const SELECTION_COLUMN_ID = "_select";
+
+export function sortRows(rows, sortColumn, sortDirection, columns, numericColumns, options = {}) {
+  const { selectedItemIds = new Set(), nameColumn = "name" } = options;
+
+  if (!sortColumn) return rows;
+
+  if (sortColumn === SELECTION_COLUMN_ID) {
+    const out = [...rows];
+    out.sort((a, b) => {
+      const aSel = selectedItemIds.has(a.id);
+      const bSel = selectedItemIds.has(b.id);
+      if (aSel !== bSel) {
+        const cmp = aSel ? -1 : 1;
+        return sortDirection === "asc" ? cmp : -cmp;
+      }
+      const nameCmp = compareValues(
+        a[nameColumn],
+        b[nameColumn],
+        nameColumn,
+        numericColumns,
+      );
+      return sortDirection === "asc" ? nameCmp : -nameCmp;
+    });
+    return out;
+  }
+
+  if (!columns.includes(sortColumn)) return rows;
 
   const out = [...rows];
   out.sort((a, b) => {

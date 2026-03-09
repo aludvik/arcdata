@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
-import { detectNumericColumns, filterItems, sortRows } from "./tableUtils.js";
+import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID } from "./tableUtils.js";
 
 /**
  * Build an index mapping item ID -> value for a given field. Only includes rows
@@ -34,6 +34,7 @@ export function App() {
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+  const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -129,14 +130,27 @@ export function App() {
     setExpandedRowKeys([]);
   };
 
+  const handleSelectionToggle = (id) => {
+    setSelectedItemIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const filteredItems = useMemo(
     () => filterItems(items, columns, searchTerm),
     [items, columns, searchTerm],
   );
 
   const sortedItems = useMemo(
-    () => sortRows(filteredItems, sortColumn, sortDirection, columns, numericColumns),
-    [filteredItems, sortColumn, sortDirection, columns, numericColumns],
+    () =>
+      sortRows(filteredItems, sortColumn, sortDirection, columns, numericColumns, {
+        selectedItemIds,
+        nameColumn: "name",
+      }),
+    [filteredItems, sortColumn, sortDirection, columns, numericColumns, selectedItemIds],
   );
 
   const totalCount = items.length;
@@ -163,7 +177,7 @@ export function App() {
             <table id="table" className="table">
               <tbody>
                 <tr>
-                  <td colSpan={Math.max(columns.length, 1)} className="error">
+                  <td colSpan={columns.length + 1} className="error">
                     {error}
                   </td>
                 </tr>
@@ -180,6 +194,8 @@ export function App() {
               benches={benches}
               expandedRowKeys={expandedRowKeys}
               onRowExpandToggle={handleRowExpandToggle}
+              selectedItemIds={selectedItemIds}
+              onSelectionToggle={handleSelectionToggle}
             />
           )}
         </div>

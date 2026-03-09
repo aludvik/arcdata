@@ -8,6 +8,8 @@ export function TableBody({
   benches,
   expandedRowKeys = [],
   onRowExpandToggle,
+  selectedItemIds = new Set(),
+  onSelectionToggle,
 }) {
   return (
     <>
@@ -23,6 +25,12 @@ export function TableBody({
             ? () => onRowExpandToggle(rowKey)
             : undefined;
 
+        const isSelected = row.id != null && selectedItemIds.has(row.id);
+        const handleSelectionToggle =
+          typeof onSelectionToggle === "function" && row.id != null
+            ? () => onSelectionToggle(row.id)
+            : undefined;
+
         return (
           <Row
             key={rowKey}
@@ -32,6 +40,8 @@ export function TableBody({
             benches={benches}
             isExpanded={isExpanded}
             onRowClick={handleRowClick}
+            isSelected={isSelected}
+            onSelectionToggle={handleSelectionToggle}
           />
         );
       })}
