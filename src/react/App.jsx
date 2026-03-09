@@ -249,7 +249,7 @@ export function App() {
               </div>
             </div>
             <div className="loot-guide-panel">
-              <h2 className="loot-guide-panel__title">Crafting guide</h2>
+              <h2 className="loot-guide-panel__title">Looting Guide</h2>
               <div className="table-wrap">
                 <Table
                   columns={["names"]}
