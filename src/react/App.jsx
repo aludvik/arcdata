@@ -139,6 +139,10 @@ export function App() {
     });
   };
 
+  const handleClearSelection = () => {
+    setSelectedItemIds(new Set());
+  };
+
   const filteredItems = useMemo(
     () => filterItems(items, columns, searchTerm),
     [items, columns, searchTerm],
@@ -168,6 +172,7 @@ export function App() {
         filteredCount={filteredCount}
         onExpandAllRows={handleExpandAllRows}
         onCollapseAllRows={handleCollapseAllRows}
+        onClearSelection={handleClearSelection}
       />
       <main className="main">
         <div className="table-wrap">

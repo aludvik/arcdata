@@ -8,6 +8,7 @@ export function SearchBar({
   filteredCount,
   onExpandAllRows,
   onCollapseAllRows,
+  onClearSelection,
 }) {
   const handleInputChange = (event) => {
     onSearchChange(event.target.value);
@@ -94,6 +95,17 @@ export function SearchBar({
           >
             - Collapse
           </button>
+          {typeof onClearSelection === "function" && (
+            <button
+              type="button"
+              className="header-btn"
+              onClick={onClearSelection}
+              title="Clear all selected items"
+              aria-label="Clear all selected items"
+            >
+              × Clear
+            </button>
+          )}
         </div>
       </div>
     </header>
