@@ -36,6 +36,7 @@ export function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
+  const [lootGuideMode, setLootGuideMode] = useState("crafting");
   const [craftingDag, setCraftingDag] = useState(() => []);
   const [sortColumnDag, setSortColumnDag] = useState("weight");
   const [sortDirectionDag, setSortDirectionDag] = useState("asc");
@@ -98,6 +99,17 @@ export function App() {
     load();
   }, []);
 
+  const lootGuideIndex = useMemo(() => {
+    switch (lootGuideMode) {
+      case "recycling":
+        return idToRecyclesInto;
+      case "salvaging":
+        return idToSalvagesInto;
+      default:
+        return idToRecipe;
+    }
+  }, [lootGuideMode, idToRecipe, idToRecyclesInto, idToSalvagesInto]);
+
   useEffect(() => {
     if (selectedItemIds.size === 0) {
       setCraftingDag([]);
@@ -105,11 +117,11 @@ export function App() {
       console.log("Crafting DAG updated", []);
       return;
     }
-    const dag = buildCraftingDag(idToRecipe, selectedItemIds);
+    const dag = buildCraftingDag(lootGuideIndex, selectedItemIds);
     setCraftingDag(dag);
     // eslint-disable-next-line no-console
     console.log("Crafting DAG updated", dag);
-  }, [idToRecipe, selectedItemIds]);
+  }, [lootGuideIndex, selectedItemIds]);
 
   const handleSortChange = (col) => {
     setSortColumn((prevCol) => {
@@ -256,6 +268,35 @@ export function App() {
             </div>
             <div className="loot-guide-panel">
               <h2 className="loot-guide-panel__title">Looting Guide</h2>
+              <div className="loot-guide-panel__tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={lootGuideMode === "crafting"}
+                  className={`loot-guide-panel__tab ${lootGuideMode === "crafting" ? "loot-guide-panel__tab--active" : ""}`}
+                  onClick={() => setLootGuideMode("crafting")}
+                >
+                  Crafting
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={lootGuideMode === "recycling"}
+                  className={`loot-guide-panel__tab ${lootGuideMode === "recycling" ? "loot-guide-panel__tab--active" : ""}`}
+                  onClick={() => setLootGuideMode("recycling")}
+                >
+                  Recycling
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={lootGuideMode === "salvaging"}
+                  className={`loot-guide-panel__tab ${lootGuideMode === "salvaging" ? "loot-guide-panel__tab--active" : ""}`}
+                  onClick={() => setLootGuideMode("salvaging")}
+                >
+                  Salvaging
+                </button>
+              </div>
               <div className="table-wrap">
                 <Table
                   columns={["names", "weight"]}

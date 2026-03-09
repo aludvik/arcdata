@@ -217,6 +217,35 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+.loot-guide-panel__tabs {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid var(--border);
+  background: var(--header-bg);
+}
+
+.loot-guide-panel__tab {
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.loot-guide-panel__tab:hover {
+  color: var(--text);
+}
+
+.loot-guide-panel__tab--active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
