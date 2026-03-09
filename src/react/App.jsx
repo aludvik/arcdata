@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
 import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID } from "./tableUtils.js";
+import { buildCraftingDag } from "../utils/craftingGraph.js";
 
 /**
  * Build an index mapping item ID -> value for a given field. Only includes rows
@@ -35,6 +36,7 @@ export function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
+  const [craftingDag, setCraftingDag] = useState(() => []);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,6 +95,19 @@ export function App() {
 
     load();
   }, []);
+
+  useEffect(() => {
+    if (selectedItemIds.size === 0) {
+      setCraftingDag([]);
+      // eslint-disable-next-line no-console
+      console.log("Crafting DAG updated", []);
+      return;
+    }
+    const dag = buildCraftingDag(idToRecipe, selectedItemIds);
+    setCraftingDag(dag);
+    // eslint-disable-next-line no-console
+    console.log("Crafting DAG updated", dag);
+  }, [idToRecipe, selectedItemIds]);
 
   const handleSortChange = (col) => {
     setSortColumn((prevCol) => {
