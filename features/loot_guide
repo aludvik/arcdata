@@ -15,16 +15,33 @@
 - In addition to the crafting guide, the loot guide can display similar graphs showing what
   the selected items can be salvaged into or recycled into.
 
+- There are two visualizations I want to show
+  - A separate table displaying all the items in the graph where each entry in the table shows:
+    - The item name, 
+    - A list of what it's used to build in the selected items
+    - A sum of all the weights going into that node in the graph
+    - Items sorted from ascending from smallest weight to largest
+  - A visualization of the graph itself, that shows:
+    - An image of the item for each node
+    - All edges to that node, with input quantities (weights) on the edges
+    - Nodes sorted ascending from left/right or top/bottom according to the number of incoming edges
+
 Steps to build this feature
-- [x] 1. Move itemIdToName index generation to app
-- [x] 2. Rename craftBenchIdToName.json to benches.json
-- [x] 3. Combine recipe/upgrade data into a single crafting column
-- [x] 4. Build indices for looking up recipe, recyclesInto, and salvagesInto by item ID in app
-- [ ] 5. Implement and test utility methods for building a tree from indices
-- [ ] 6. Combine indices into single object to reduce number of arguments passed
-- [ ] 7. Add UI to select items, selected items stay at the top of the sheet
-- [ ] 8. Add a bottom panel that displays when items are selected
-- [ ] 9. Render the crafting tree in the bottom panel
-- [ ] 10. Label the edges with item quantities
-- [ ] 11. Add tabs for recycling, salvaging trees (or display all at once)
-- [ ] 12. Add drawer button for opening, closing bottom panel
+- [x] Move itemIdToName index generation to app
+- [x] Rename craftBenchIdToName.json to benches.json
+- [x] Combine recipe/upgrade data into a single crafting column
+- [x] Build indices for looking up recipe, recyclesInto, and salvagesInto by item ID in app
+- [ ] Add UI to select items, selected items stay at the top of the sheet
+- [ ] Add a bottom panel that displays when items are selected
+- [ ] Scrub salvage inputs
+
+- [ ] Implement and test utility methods for building a tree from indices
+- [ ] Combine indices into single object to reduce number of arguments passed
+- [ ] Render the crafting tree in the bottom panel
+- [ ] Label the edges with item quantities
+- [ ] Add tabs for recycling, salvaging trees (or display all at once)
+- [ ] Add drawer button for opening, closing bottom panel
+
+Scrub salvage inputs
+- Some items have their recipe listed as another item that can be salvaged into it.
+- This will create cycles and also is misleading, as crafting and recycling/salvaging should be treated separately.
