@@ -84,7 +84,7 @@ export function App() {
         setIdToSalvagesInto(idToSalvagesIntoData);
         setbenches(benchesData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
-        setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
+        // setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
         setError(null);
       } catch (e) {
         // eslint-disable-next-line no-console

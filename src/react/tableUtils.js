@@ -65,7 +65,9 @@ export const SELECTION_COLUMN_ID = "_select";
 export function sortRows(rows, sortColumn, sortDirection, columns, numericColumns, options = {}) {
   const { selectedItemIds = new Set(), nameColumn = "name" } = options;
 
-  if (!sortColumn) return rows;
+  if (!sortColumn) {
+    sortColumn = SELECTION_COLUMN_ID;
+  };
 
   if (sortColumn === SELECTION_COLUMN_ID) {
     const out = [...rows];
