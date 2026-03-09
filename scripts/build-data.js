@@ -197,6 +197,25 @@ function buildItems(files, configColumns, excludeTypes) {
   const items = [];
 
   for (const normalized of allNormalized) {
+    const rawCraftBench = normalized.craftBench;
+    let cleanedCraftBench = undefined;
+
+    if (Object.prototype.hasOwnProperty.call(normalized, "craftBench")) {
+      if (typeof rawCraftBench === "string") {
+        if (rawCraftBench === "in_raid") {
+        } else {
+          cleanedCraftBench = rawCraftBench;
+        }
+      } else if (Array.isArray(rawCraftBench)) {
+        const withoutInRaid = rawCraftBench.filter((v) => v !== "in_raid");
+        if (withoutInRaid.length > 0) {
+          cleanedCraftBench = withoutInRaid;
+        }
+      } else {
+        cleanedCraftBench = rawCraftBench;
+      }
+    }
+
     const filtered = {};
     for (const col of configColumns) {
       if (col === "upgradeCost") continue;
@@ -208,10 +227,22 @@ function buildItems(files, configColumns, excludeTypes) {
         if (recipe !== undefined) filtered.recipe = recipe;
         continue;
       }
+      if (col === "craftBench") {
+        if (cleanedCraftBench !== undefined) {
+          filtered.craftBench = cleanedCraftBench;
+        }
+        continue;
+      }
       if (Object.prototype.hasOwnProperty.call(normalized, col)) {
         filtered[col] = normalized[col];
       }
     }
+
+    const hasCraftBenchAfter = Object.prototype.hasOwnProperty.call(filtered, "craftBench");
+    if (!hasCraftBenchAfter && filtered.recipe !== undefined) {
+      delete filtered.recipe;
+    }
+
     items.push(filtered);
   }
 
@@ -241,8 +272,6 @@ function buildCraftBenchIndex(files) {
       console.warn(`Skip hideout ${path.basename(filePath)}: ${e.message}`);
     }
   }
-
-  benches["in_raid"] = "In-Raid";
 
   return benches;
 }
