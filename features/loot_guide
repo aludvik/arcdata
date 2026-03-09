@@ -32,14 +32,20 @@ Steps to build this feature
 - [x] Combine recipe/upgrade data into a single crafting column
 - [x] Build indices for looking up recipe, recyclesInto, and salvagesInto by item ID in app
 - [x] Scrub salvage inputs
-- [ ] Add UI to select items, selected items stay at the top of the sheet
-- [ ] Add a bottom panel that displays when items are selected
-- [ ] Implement and test utility methods for building a tree from indices
+- [x] Add UI to select items, selected items stay at the t  op of the sheet
+- [x] Implement and test utility methods for building a directed, acyclic graph from indices
+- [x] Add a bottom panel that displays when items are selected
+- [x] Map IDs to names
+- [x] Move panel to right instead of bottom
+- [ ] Sort items by ascending order of incoming weights
+- [ ] Add tabs for switching between recipe, recycling, salvaging trees (or display all at once)
+- [ ] Add drawer button for opening, closing side panel
+- [ ] Add cookies for retaining state when reloading the app
+- [ ] Add export / import for saving / loading state
+- [ ] Change side panel color
 - [ ] Combine indices into single object to reduce number of arguments passed
 - [ ] Render the crafting tree in the bottom panel
 - [ ] Label the edges with item quantities
-- [ ] Add tabs for recycling, salvaging trees (or display all at once)
-- [ ] Add drawer button for opening, closing bottom panel
 
 Scrub salvage inputs
 - Some items have their recipe listed as another item that can be salvaged into it.
