@@ -29,6 +29,12 @@ body {
   min-height: 100vh;
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .header {
   position: sticky;
   top: 0;
@@ -163,6 +169,53 @@ body {
   max-height: calc(100vh - var(--app-header-height) - 2rem);
   border: 1px solid var(--border);
   background: var(--surface);
+}
+
+.main--split {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 50vh;
+}
+
+.main--split .main__top {
+  display: block;
+}
+
+.main--split .main__top .table-wrap {
+  max-height: calc(100vh - var(--app-header-height) - 2rem);
+}
+
+.loot-guide-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 50vh;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.loot-guide-panel .table-wrap {
+  flex: 1;
+  overflow: auto;
+  max-height: none;
+}
+
+.loot-guide-panel__title {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
 }
 
 .table {

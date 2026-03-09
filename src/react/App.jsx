@@ -37,6 +37,8 @@ export function App() {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
   const [craftingDag, setCraftingDag] = useState(() => []);
+  const [sortColumnDag, setSortColumnDag] = useState("id");
+  const [sortDirectionDag, setSortDirectionDag] = useState("asc");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -158,6 +160,17 @@ export function App() {
     setSelectedItemIds(new Set());
   };
 
+  const handleSortChangeDag = (col) => {
+    setSortColumnDag((prevCol) => {
+      if (prevCol === col) {
+        setSortDirectionDag((prevDir) => (prevDir === "asc" ? "desc" : "asc"));
+        return prevCol;
+      }
+      setSortDirectionDag("asc");
+      return col;
+    });
+  };
+
   const filteredItems = useMemo(
     () => filterItems(items, columns, searchTerm),
     [items, columns, searchTerm],
@@ -175,6 +188,14 @@ export function App() {
   const totalCount = items.length;
   const filteredCount = filteredItems.length;
 
+  const dagRows = useMemo(() => {
+    const rows = craftingDag.map((node) => ({ id: node.itemId }));
+    const dir = sortDirectionDag === "asc" ? 1 : -1;
+    return [...rows].sort((a, b) => dir * String(a.id).localeCompare(String(b.id)));
+  }, [craftingDag, sortDirectionDag]);
+
+  const showLootGuide = craftingDag.length > 0;
+
   return (
     <>
       {/* Future extension: additional UI like FiltersPanel or ColumnsPicker can be
@@ -189,36 +210,89 @@ export function App() {
         onCollapseAllRows={handleCollapseAllRows}
         onClearSelection={handleClearSelection}
       />
-      <main className="main">
-        <div className="table-wrap">
-          {loading ? (
-            <div className="loading">Loading items…</div>
-          ) : error ? (
-            <table id="table" className="table">
-              <tbody>
-                <tr>
-                  <td colSpan={columns.length + 1} className="error">
-                    {error}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          ) : (
-            <Table
-              columns={columns}
-              rows={sortedItems}
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSortChange={handleSortChange}
-              idToName={idToName}
-              benches={benches}
-              expandedRowKeys={expandedRowKeys}
-              onRowExpandToggle={handleRowExpandToggle}
-              selectedItemIds={selectedItemIds}
-              onSelectionToggle={handleSelectionToggle}
-            />
-          )}
-        </div>
+      <main className={showLootGuide ? "main main--split" : "main"}>
+        {showLootGuide ? (
+          <>
+            <div className="main__top">
+              <div className="table-wrap">
+                {loading ? (
+                  <div className="loading">Loading items…</div>
+                ) : error ? (
+                  <table id="table" className="table">
+                    <tbody>
+                      <tr>
+                        <td colSpan={columns.length + 1} className="error">
+                          {error}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                ) : (
+                  <Table
+                    columns={columns}
+                    rows={sortedItems}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSortChange={handleSortChange}
+                    idToName={idToName}
+                    benches={benches}
+                    expandedRowKeys={expandedRowKeys}
+                    onRowExpandToggle={handleRowExpandToggle}
+                    selectedItemIds={selectedItemIds}
+                    onSelectionToggle={handleSelectionToggle}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="loot-guide-panel">
+              <h2 className="loot-guide-panel__title">Crafting guide</h2>
+              <div className="table-wrap">
+                <Table
+                  columns={["id"]}
+                  rows={dagRows}
+                  sortColumn={sortColumnDag}
+                  sortDirection={sortDirectionDag}
+                  onSortChange={handleSortChangeDag}
+                  idToName={idToName}
+                  benches={benches}
+                  expandedRowKeys={[]}
+                  onRowExpandToggle={() => {}}
+                  showSelectionColumn={false}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="table-wrap">
+            {loading ? (
+              <div className="loading">Loading items…</div>
+            ) : error ? (
+              <table id="table" className="table">
+                <tbody>
+                  <tr>
+                    <td colSpan={columns.length + 1} className="error">
+                      {error}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            ) : (
+              <Table
+                columns={columns}
+                rows={sortedItems}
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
+                idToName={idToName}
+                benches={benches}
+                expandedRowKeys={expandedRowKeys}
+                onRowExpandToggle={handleRowExpandToggle}
+                selectedItemIds={selectedItemIds}
+                onSelectionToggle={handleSelectionToggle}
+              />
+            )}
+          </div>
+        )}
       </main>
     </>
   );

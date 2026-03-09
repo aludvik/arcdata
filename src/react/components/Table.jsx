@@ -14,6 +14,7 @@ export function Table({
   onRowExpandToggle,
   selectedItemIds,
   onSelectionToggle,
+  showSelectionColumn = true,
 }) {
   return (
     <table id="table" className="table">
@@ -23,6 +24,7 @@ export function Table({
           sortColumn={sortColumn}
           sortDirection={sortDirection}
           onSortChange={onSortChange}
+          showSelectionColumn={showSelectionColumn}
         />
       </thead>
       <tbody>
