@@ -27,6 +27,13 @@
     - Nodes sorted ascending from left/right or top/bottom according to the number of incoming edges
 
 Steps to build this feature
+- [ ] Change color scheme, side panel color
+- [ ] Label basic, intermediary, selected materials differently
+- [ ] Fix recycling / salvaging guide
+- [ ] Render the looting graph in the bottom panel
+- [ ] Label the looting graph edges with item quantities
+- [ ] Add export / import for saving / loading state
+---
 - [x] Move itemIdToName index generation to app
 - [x] Rename craftBenchIdToName.json to benches.json
 - [x] Combine recipe/upgrade data into a single crafting column
@@ -44,14 +51,6 @@ Steps to build this feature
 - [x] Name column is no longer pinned
 - [x] Add drawer button for opening, closing side panel
 - [x] Add slider for resizing side panel
-- [ ] Change color scheme, side panel color
-- [ ] Only search name column
-- [ ] Add option to click non-column headers and filter by checkbox
-- [ ] Label basic, intermediary, selected materials differently
-- [ ] Fix recycling / salvaging guide
-- [ ] Render the looting graph in the bottom panel
-- [ ] Label the looting graph edges with item quantities
-- [ ] Add export / import for saving / loading state
 
 Fix Recycling / Salvaging Guide
 - Different than the crafting guide
