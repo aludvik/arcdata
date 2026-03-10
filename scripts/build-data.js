@@ -88,6 +88,10 @@ function normalizeItem(data) {
       normalized[key] = value;
       continue;
     }
+    if (data.isWeapon) {
+      normalized.type = "Weapon";
+      continue;
+    }
     normalized[key] = formatKeyValueList(value);
   }
   return normalized;
