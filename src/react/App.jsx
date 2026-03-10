@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
-import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID } from "./tableUtils.js";
+import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID, augmentRowsWithRendered } from "./tableUtils.js";
 import { buildCraftingDag } from "../utils/craftingGraph.js";
 import { getDefaultState, loadState, saveState } from "./persistence.js";
 
@@ -236,9 +236,14 @@ export function App() {
     });
   };
 
+  const itemsWithRendered = useMemo(
+    () => augmentRowsWithRendered(items, columns, idToName, benches),
+    [items, columns, idToName, benches],
+  );
+
   const filteredItems = useMemo(
-    () => filterItems(items, searchTerm, idToName, benches),
-    [items, searchTerm, idToName, benches],
+    () => filterItems(itemsWithRendered, searchTerm, idToName, benches),
+    [itemsWithRendered, searchTerm, idToName, benches],
   );
 
   const sortedItems = useMemo(

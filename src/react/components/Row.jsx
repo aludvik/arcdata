@@ -30,13 +30,10 @@ export function Row({
         </td>
       ) : null}
       {columns.map((col) => {
-        const { text, isEmpty } = formatCellValue(
-          row,
-          col,
-          idToName,
-          benches,
-          { expanded: isExpanded },
-        );
+        const cache = isExpanded ? row._renderedExpanded : row._rendered;
+        const result =
+          cache?.[col] ?? formatCellValue(row, col, idToName, benches, { expanded: isExpanded });
+        const { text, isEmpty } = result;
 
         const cellClassNames = [
           isEmpty ? "empty" : null,

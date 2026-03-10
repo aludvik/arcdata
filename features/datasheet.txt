@@ -10,8 +10,7 @@ Non-goals:
 - First version, focus on a single loadout. Second version, add all loadouts merge inputs
 
 Backlog
-- [ ] Cache rendered text so it doesn't need to be recomputed every time
----
+- [x] Cache rendered text so it doesn't need to be recomputed every time
 - [x] Use "Weapon" as the type for all weapons
 - [x] Don't search crafting columns
 - [x] Analytics to see page visits

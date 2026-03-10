@@ -2,6 +2,30 @@ import { formatCellValue } from "./components/cellValue.js";
 
 const SEARCH_COLUMNS = ["name", "type", "rarity", "craftBench"];
 
+/**
+ * Augment each row with cached rendered cell text so display and search can reuse it.
+ * Returns a new array; only augments when idToName and benches are objects.
+ */
+export function augmentRowsWithRendered(items, columns, idToName, benches) {
+  if (
+    idToName == null ||
+    benches == null ||
+    typeof idToName !== "object" ||
+    typeof benches !== "object"
+  ) {
+    return items;
+  }
+  return items.map((row) => {
+    const _rendered = {};
+    const _renderedExpanded = {};
+    for (const col of columns) {
+      _rendered[col] = formatCellValue(row, col, idToName, benches);
+      _renderedExpanded[col] = formatCellValue(row, col, idToName, benches, { expanded: true });
+    }
+    return { ...row, _rendered, _renderedExpanded };
+  });
+}
+
 export function rowSearchText(row, columns) {
   return columns
     .map((col) => {
@@ -19,8 +43,18 @@ export function rowSearchText(row, columns) {
 /**
  * Build searchable text from rendered (display) values for the given row.
  * Uses the same formatting as cell display so e.g. craftBench is searched as "Gunsmith" not "weapon_bench".
+ * When row has cached _rendered, uses that to avoid recomputing.
  */
 export function rowSearchTextRendered(row, columns, idToName, benches) {
+  const useCache =
+    row._rendered &&
+    columns.every((col) => row._rendered[col] != null);
+  if (useCache) {
+    return columns
+      .map((col) => row._rendered[col].text)
+      .join(" ")
+      .toLowerCase();
+  }
   return columns
     .map((col) => formatCellValue(row, col, idToName, benches).text)
     .join(" ")
