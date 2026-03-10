@@ -37,15 +37,40 @@ Steps to build this feature
 - [x] Add a bottom panel that displays when items are selected
 - [x] Map IDs to names
 - [x] Move panel to right instead of bottom
-- [ ] Sort items by ascending order of incoming weights
-- [ ] Add tabs for switching between recipe, recycling, salvaging trees (or display all at once)
-- [ ] Add drawer button for opening, closing side panel
-- [ ] Add cookies for retaining state when reloading the app
+- [x] Sort items by ascending order of incoming weights
+- [x] Add tabs for switching between recipe, recycling, salvaging trees
+- [x] Add localStorage for retaining state when reloading the app
+- [x] Cascade weights
+- [x] Name column is no longer pinned
+- [x] Add drawer button for opening, closing side panel
+- [x] Add slider for resizing side panel
+- [ ] Change color scheme, side panel color
+- [ ] Only search name column
+- [ ] Add option to click non-column headers and filter by checkbox
+- [ ] Label basic, intermediary, selected materials differently
+- [ ] Fix recycling / salvaging guide
+- [ ] Render the looting graph in the bottom panel
+- [ ] Label the looting graph edges with item quantities
 - [ ] Add export / import for saving / loading state
-- [ ] Change side panel color
-- [ ] Combine indices into single object to reduce number of arguments passed
-- [ ] Render the crafting tree in the bottom panel
-- [ ] Label the edges with item quantities
+
+Fix Recycling / Salvaging Guide
+- Different than the crafting guide
+- Should show all the items that can be recycled / salvaged into items needed to craft the selected items
+
+Label basic, intermediary, selected materials differently
+- Basic materials have no outgoing edges, they cannot be crafted from anything
+- Intermediary materials can be crafted, but are used in crafting something too
+- Selected materials are the desired loadout items, they may have incoming edges,
+  but selection should override this or both should be noted
+
+-- DONE --
+
+Cascade weights
+- The weight calculation on nodes isn't quite right.
+- Weights should cascade, if you need multiple of an intermediary resource, 
+  then each instance of that resource should add weight to the downstream resources.
+- For example, if you need 4 mechanical components, they take 7 metal and 4 rubber, 
+  so the mechanical components should add 28 to metal's weight and 16 to rubber's weight
 
 Scrub salvage inputs
 - Some items have their recipe listed as another item that can be salvaged into it.
