@@ -22,7 +22,7 @@ export function filterItems(items, columns, keyword) {
   if (terms.length === 0) return items;
 
   return items.filter((row) => {
-    const text = rowSearchText(row, columns);
+    const text = rowSearchText(row, ["name", "type", "rarity", "craftBench"]);
     return terms.every((t) => text.includes(t));
   });
 }
