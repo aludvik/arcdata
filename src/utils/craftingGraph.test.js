@@ -46,9 +46,20 @@ function runTests() {
   );
   assert.strictEqual(nodeB.edges.length, 0, "B has no edges");
   assert.strictEqual(nodeC.edges.length, 0, "C has no edges");
-  assert.strictEqual(nodeA.weight, 0, "A has no incoming edges");
+  assert.strictEqual(nodeA.weight, 1, "A has no incoming edges");
+  assert.strictEqual(nodeA.incomingEdges.length, 0, "A has no incomingEdges");
   assert.strictEqual(nodeB.weight, 2, "B has one incoming edge weight 2");
+  assert.deepStrictEqual(
+    nodeB.incomingEdges.map((e) => ({ s: e.sourceId, w: e.weight })),
+    [{ s: "A", w: 2 }],
+    "B has incoming from A with weight 2",
+  );
   assert.strictEqual(nodeC.weight, 1, "C has one incoming edge weight 1");
+  assert.deepStrictEqual(
+    nodeC.incomingEdges.map((e) => ({ s: e.sourceId, w: e.weight })),
+    [{ s: "A", w: 1 }],
+    "C has incoming from A with weight 1",
+  );
   isDag(result);
 
   // Cycle breaking: A -> B -> C -> A
@@ -71,13 +82,13 @@ function runTests() {
   assert.strictEqual(result.length, 1, "one node");
   assert.strictEqual(result[0].itemId, "X", "node is X");
   assert.strictEqual(result[0].edges.length, 0, "no edges");
-  assert.strictEqual(result[0].weight, 0, "X has no incoming edges");
+  assert.strictEqual(result[0].weight, 1, "X has no incoming edges");
 
   result = buildCraftingDag({ A: { B: 1 } }, ["Y"]);
   assert.strictEqual(result.length, 1, "one node when start not in index");
   assert.strictEqual(result[0].itemId, "Y", "node is Y");
   assert.strictEqual(result[0].edges.length, 0, "no edges");
-  assert.strictEqual(result[0].weight, 0, "Y has no incoming edges");
+  assert.strictEqual(result[0].weight, 1, "Y has no incoming edges");
 
   // Set as startItemIds (normalize iterable)
   result = buildCraftingDag(index1, new Set(["A"]));
@@ -92,10 +103,15 @@ function runTests() {
   const nodeDagB = result.find((n) => n.itemId === "B");
   const nodeDagC = result.find((n) => n.itemId === "C");
   const nodeDagD = result.find((n) => n.itemId === "D");
-  assert.strictEqual(nodeDagA.weight, 0, "A has no incoming");
+  assert.strictEqual(nodeDagA.weight, 1, "A has no incoming");
   assert.strictEqual(nodeDagB.weight, 1, "B has one incoming");
   assert.strictEqual(nodeDagC.weight, 1, "C has one incoming");
   assert.strictEqual(nodeDagD.weight, 3, "D has incoming 2+1");
+  assert.deepStrictEqual(
+    nodeDagD.incomingEdges.map((e) => ({ s: e.sourceId, w: e.weight })).sort((a, b) => a.s.localeCompare(b.s)),
+    [{ s: "B", w: 2 }, { s: "C", w: 1 }],
+    "D has incoming from B and C",
+  );
   isDag(result);
 }
 

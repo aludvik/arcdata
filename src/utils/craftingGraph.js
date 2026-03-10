@@ -5,13 +5,14 @@
  * @param {Record<string, Record<string, number>>} index - Map of item ID to
  *   object mapping target item IDs to numeric weights (e.g. recipe, recyclesInto, salvagesInto).
  * @param {Iterable<string>} startItemIds - Item IDs to use as starting nodes.
- * @returns {{ itemId: string, edges: { targetItemId: string, weight: number }[], weight: number }[]}
+ * @returns {{ itemId: string, edges: { targetItemId: string, weight: number }[], incomingEdges: { sourceId: string, weight: number }[], weight: number }[]}
  */
 export function buildCraftingDag(index, startItemIds) {
   const startIds = Array.from(startItemIds, (id) => String(id));
   const nodesSet = new Set();
   const nodeList = [];
-  const edgesMap = new Map();
+  const outgoingEdgesMap = new Map();
+  const incomingEdgesMap = new Map();
   const processed = new Set();
   const pathSet = new Set();
 
@@ -19,7 +20,8 @@ export function buildCraftingDag(index, startItemIds) {
     if (!nodesSet.has(id)) {
       nodesSet.add(id);
       nodeList.push(id);
-      edgesMap.set(id, []);
+      outgoingEdgesMap.set(id, []);
+      incomingEdgesMap.set(id, []);
     }
   }
 
@@ -49,8 +51,9 @@ export function buildCraftingDag(index, startItemIds) {
         });
         continue;
       }
-      edgesMap.get(uStr).push({ targetItemId: v, weight });
       ensureNode(v);
+      outgoingEdgesMap.get(uStr).push({ targetItemId: v, weight });
+      incomingEdgesMap.get(v).push({ sourceId: uStr, weight });
       dfs(v);
     }
 
@@ -65,16 +68,43 @@ export function buildCraftingDag(index, startItemIds) {
     dfs(String(id));
   }
 
-  const incomingTotal = new Map();
-  for (const [, edgeList] of edgesMap) {
-    for (const { targetItemId: v, weight } of edgeList) {
-      incomingTotal.set(v, (incomingTotal.get(v) ?? 0) + weight);
+  // Topological sort (Kahn's algorithm)
+  const inDegreeRemaining = new Map();
+  for (const itemId of nodeList) {
+    inDegreeRemaining.set(itemId, incomingEdgesMap.get(itemId).length);
+  }
+  const queue = nodeList.filter((id) => inDegreeRemaining.get(id) === 0);
+  const topoOrder = [];
+  while (queue.length > 0) {
+    const u = queue.shift();
+    topoOrder.push(u);
+    for (const { targetItemId: v } of outgoingEdgesMap.get(u) ?? []) {
+      inDegreeRemaining.set(v, inDegreeRemaining.get(v) - 1);
+      if (inDegreeRemaining.get(v) === 0) {
+        queue.push(v);
+      }
+    }
+  }
+
+  // Compute weights in topological order
+  const nodeWeights = new Map();
+  for (const itemId of topoOrder) {
+    const incoming = incomingEdgesMap.get(itemId) ?? [];
+    if (incoming.length === 0) {
+      nodeWeights.set(itemId, 1);
+    } else {
+      let sum = 0;
+      for (const { sourceId, weight } of incoming) {
+        sum += (nodeWeights.get(sourceId) ?? 0) * weight;
+      }
+      nodeWeights.set(itemId, sum);
     }
   }
 
   return nodeList.map((itemId) => ({
     itemId,
-    edges: edgesMap.get(itemId) ?? [],
-    weight: incomingTotal.get(itemId) ?? 0,
+    edges: outgoingEdgesMap.get(itemId) ?? [],
+    incomingEdges: incomingEdgesMap.get(itemId) ?? [],
+    weight: nodeWeights.get(itemId) ?? 1,
   }));
 }
