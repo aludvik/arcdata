@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
 import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID } from "./tableUtils.js";
@@ -46,6 +46,8 @@ export function App() {
     () => new Set(initialState.selectedItemIds),
   );
   const [lootGuideMode, setLootGuideMode] = useState(initialState.lootGuideMode);
+  const [lootGuideOpen, setLootGuideOpen] = useState(true);
+  const [lootGuideWidth, setLootGuideWidth] = useState(320);
   const [craftingDag, setCraftingDag] = useState(() => []);
   const [sortColumnDag, setSortColumnDag] = useState(initialState.sortColumnDag);
   const [sortDirectionDag, setSortDirectionDag] = useState(initialState.sortDirectionDag);
@@ -268,6 +270,35 @@ export function App() {
   }, [craftingDag, idToName, sortColumnDag, sortDirectionDag]);
 
   const showLootGuide = craftingDag.length > 0;
+  const panelOpen = showLootGuide && lootGuideOpen;
+
+  const resizeStartX = useRef(0);
+  const resizeStartWidth = useRef(0);
+
+  const handleResizeStart = useCallback((e) => {
+    e.preventDefault();
+    resizeStartX.current = e.clientX;
+    resizeStartWidth.current = lootGuideWidth;
+    const onMove = (moveEvent) => {
+      const delta = resizeStartX.current - moveEvent.clientX;
+      const newWidth = Math.min(800, Math.max(200, resizeStartWidth.current + delta));
+      setLootGuideWidth(newWidth);
+    };
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }, [lootGuideWidth]);
+
+  const handleDrawerToggle = useCallback(() => {
+    setLootGuideOpen((prev) => !prev);
+  }, []);
 
   return (
     <>
@@ -283,7 +314,10 @@ export function App() {
         onCollapseAllRows={handleCollapseAllRows}
         onClearSelection={handleClearSelection}
       />
-      <main className={showLootGuide ? "main main--split" : "main"}>
+      <main
+        className={panelOpen ? "main main--split" : "main"}
+        style={panelOpen ? { "--loot-guide-width": `${lootGuideWidth}px` } : undefined}
+      >
         {showLootGuide ? (
           <>
             <div className="main__top">
@@ -317,8 +351,25 @@ export function App() {
                 )}
               </div>
             </div>
-            <div className="loot-guide-panel">
-              <h2 className="loot-guide-panel__title">Looting Guide</h2>
+            {panelOpen && (
+              <>
+                <div
+                  className="loot-guide-resize-handle"
+                  onMouseDown={handleResizeStart}
+                  role="separator"
+                  aria-orientation="vertical"
+                />
+                <button
+                  type="button"
+                  className="loot-guide-drawer loot-guide-drawer--on-panel"
+                  onClick={handleDrawerToggle}
+                  aria-label="Close Looting Guide"
+                  aria-expanded={true}
+                >
+                  ›
+                </button>
+                <div className="loot-guide-panel">
+                  <h2 className="loot-guide-panel__title">Looting Guide</h2>
               <div className="loot-guide-panel__tabs" role="tablist">
                 <button
                   type="button"
@@ -364,7 +415,21 @@ export function App() {
               </div>
             </div>
           </>
-        ) : (
+            )}
+          </>
+        ) : null}
+        {showLootGuide && !panelOpen ? (
+          <button
+            type="button"
+            className="loot-guide-drawer loot-guide-drawer--tab"
+            onClick={handleDrawerToggle}
+            aria-label="Open Looting Guide"
+            aria-expanded={false}
+          >
+            ‹
+          </button>
+        ) : null}
+        {!showLootGuide ? (
           <div className="table-wrap">
             {loading ? (
               <div className="loading">Loading items…</div>
@@ -394,7 +459,7 @@ export function App() {
               />
             )}
           </div>
-        )}
+        ) : null}
       </main>
     </>
   );

@@ -178,7 +178,7 @@ body {
   display: block;
   flex: 1;
   min-height: 0;
-  padding-right: 25%;
+  padding-right: var(--loot-guide-width, 320px);
 }
 
 .main--split .main__top {
@@ -189,11 +189,79 @@ body {
   max-height: calc(100vh - var(--app-header-height) - 2rem);
 }
 
+.loot-guide-resize-handle {
+  position: fixed;
+  top: var(--app-header-height);
+  right: var(--loot-guide-width, 320px);
+  width: 8px;
+  height: calc(100vh - var(--app-header-height));
+  z-index: 11;
+  cursor: col-resize;
+  background: transparent;
+}
+
+.loot-guide-resize-handle:hover {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.loot-guide-drawer {
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  outline: none;
+}
+
+.loot-guide-drawer:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.loot-guide-drawer:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+
+.loot-guide-drawer--tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 18px;
+  padding: 0.5rem 0.2rem;
+  border-radius: 6px 0 0 6px;
+  border-right: none;
+  z-index: 11;
+}
+
+.loot-guide-drawer--on-panel {
+  position: fixed;
+  top: 50%;
+  right: var(--loot-guide-width, 320px);
+  transform: translateY(-50%);
+  width: 18px;
+  padding: 0.5rem 0.2rem;
+  border-radius: 6px 0 0 6px;
+  border-right: none;
+  border-left: 1px solid var(--border);
+  background: var(--header-bg);
+  color: var(--accent);
+  z-index: 12;
+}
+
+.loot-guide-drawer--on-panel:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
 .loot-guide-panel {
   position: fixed;
   top: var(--app-header-height);
   right: 0;
-  width: 25%;
+  width: var(--loot-guide-width, 320px);
   height: calc(100vh - var(--app-header-height));
   z-index: 10;
   display: flex;
