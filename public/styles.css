@@ -169,7 +169,7 @@ body {
 
 .table-wrap {
   overflow: auto;
-  max-height: calc(100vh - var(--app-header-height) - 2rem);
+  max-height: calc(100vh - var(--app-header-height));
   border: 1px solid var(--border);
   background: var(--surface);
 }
@@ -186,7 +186,7 @@ body {
 }
 
 .main--split .main__top .table-wrap {
-  max-height: calc(100vh - var(--app-header-height) - 2rem);
+  max-height: calc(100vh - var(--app-header-height));
 }
 
 .loot-guide-resize-handle {
