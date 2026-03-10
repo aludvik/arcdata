@@ -3,6 +3,7 @@ import { SearchBar } from "./components/SearchBar.jsx";
 import { Table } from "./components/Table.jsx";
 import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID } from "./tableUtils.js";
 import { buildCraftingDag } from "../utils/craftingGraph.js";
+import { getDefaultState, loadState, saveState } from "./persistence.js";
 
 /**
  * Build an index mapping item ID -> value for a given field. Only includes rows
@@ -23,6 +24,12 @@ function buildIdToFieldIndex(items, fieldName) {
 }
 
 export function App() {
+  const initialState = useMemo(() => {
+    const p = loadState();
+    const d = getDefaultState();
+    return p ? { ...d, ...p } : d;
+  }, []);
+
   const [items, setItems] = useState([]);
   const [columns, setColumns] = useState([]);
   const [numericColumns, setNumericColumns] = useState(() => new Set());
@@ -31,15 +38,17 @@ export function App() {
   const [idToRecyclesInto, setIdToRecyclesInto] = useState(() => ({}));
   const [idToSalvagesInto, setIdToSalvagesInto] = useState(() => ({}));
   const [benches, setbenches] = useState(() => ({}));
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-  const [selectedItemIds, setSelectedItemIds] = useState(() => new Set());
-  const [lootGuideMode, setLootGuideMode] = useState("crafting");
+  const [sortColumn, setSortColumn] = useState(initialState.sortColumn);
+  const [sortDirection, setSortDirection] = useState(initialState.sortDirection);
+  const [searchTerm, setSearchTerm] = useState(initialState.searchTerm);
+  const [expandedRowKeys, setExpandedRowKeys] = useState(initialState.expandedRowKeys);
+  const [selectedItemIds, setSelectedItemIds] = useState(
+    () => new Set(initialState.selectedItemIds),
+  );
+  const [lootGuideMode, setLootGuideMode] = useState(initialState.lootGuideMode);
   const [craftingDag, setCraftingDag] = useState(() => []);
-  const [sortColumnDag, setSortColumnDag] = useState("weight");
-  const [sortDirectionDag, setSortDirectionDag] = useState("asc");
+  const [sortColumnDag, setSortColumnDag] = useState(initialState.sortColumnDag);
+  const [sortDirectionDag, setSortDirectionDag] = useState(initialState.sortDirectionDag);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -85,7 +94,27 @@ export function App() {
         setIdToSalvagesInto(idToSalvagesIntoData);
         setbenches(benchesData);
         setNumericColumns(detectNumericColumns(itemsData, columnsData));
-        // setSortColumn((prev) => (prev ?? (columnsData[0] ?? null)));
+
+        const validIds = new Set(itemsData.map((r) => r.id).filter(Boolean));
+        const validRowKeys = new Set(itemsData.map((r, i) => r.id ?? i));
+        const validColumns = new Set([...columnsData, SELECTION_COLUMN_ID]);
+        const validDagColumns = new Set(["names", "weight", "id"]);
+
+        setSelectedItemIds((prev) => {
+          const filtered = [...prev].filter((id) => validIds.has(id));
+          return filtered.length === prev.size ? prev : new Set(filtered);
+        });
+        setExpandedRowKeys((prev) => {
+          const filtered = prev.filter((k) => validRowKeys.has(k));
+          return filtered.length === prev.length ? prev : filtered;
+        });
+        setSortColumn((prev) =>
+          prev != null && validColumns.has(prev) ? prev : null,
+        );
+        setSortColumnDag((prev) =>
+          validDagColumns.has(prev) ? prev : "weight",
+        );
+
         setError(null);
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -98,6 +127,28 @@ export function App() {
 
     load();
   }, []);
+
+  useEffect(() => {
+    saveState({
+      searchTerm,
+      sortColumn,
+      sortDirection,
+      expandedRowKeys,
+      selectedItemIds,
+      lootGuideMode,
+      sortColumnDag,
+      sortDirectionDag,
+    });
+  }, [
+    searchTerm,
+    sortColumn,
+    sortDirection,
+    expandedRowKeys,
+    selectedItemIds,
+    lootGuideMode,
+    sortColumnDag,
+    sortDirectionDag,
+  ]);
 
   const lootGuideIndex = useMemo(() => {
     switch (lootGuideMode) {
