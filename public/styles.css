@@ -1,16 +1,21 @@
 :root {
-  --bg: #0d1117;
-  --surface: #151b24;
-  --border: #363d52;
+  /* ARC Raiders–inspired palette: dark indigo base, warm light accent for main UI */
+  --bg: #1a1628;
+  --surface: #221e2f;
+  --border: #3d3850;
   --text: #f0f4f8;
-  --muted: #9ca3af;
-  --accent: #f59e0b;
-  --header-bg: #12161d;
-  --row-hover: rgba(245, 158, 11, 0.08);
+  --muted: #9a94a8;
+  --accent: #e0d9c0;
+  --header-bg: #221e2f;
+  --row-hover: rgba(224, 217, 192, 0.1);
   /* Opaque equivalents for sticky columns so content scrolling underneath doesn't show through */
-  --row-hover-solid: #272522;
-  --row-selected-solid: #2d2819;
-  --row-selected: rgba(245, 158, 11, 0.18);
+  --row-hover-solid: #2c2838;
+  --row-selected-solid: #36304a;
+  --row-selected: rgba(224, 217, 192, 0.18);
+  /* Looting guide: distinct cool accent (electric blue) */
+  --accent-loot-guide: #00bfff;
+  --accent-loot-guide-dim: rgba(0, 191, 255, 0.15);
+  --surface-loot-guide: #130918;
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
   /* Height of the app header (SearchBar) so the table header sticks below it */
   --app-header-height: 6rem;
@@ -43,7 +48,7 @@ body {
   top: 0;
   z-index: 10;
   padding: 0.75em;
-  background: var(--header-bg);
+  background: var(--surface-loot-guide);
   border-bottom: 1px solid var(--border);
 }
 
@@ -130,7 +135,7 @@ body {
 
 #search:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 0 2px rgba(224, 217, 192, 0.35);
 }
 
 .count {
@@ -164,7 +169,7 @@ body {
 
 .header-btn:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 0 2px rgba(224, 217, 192, 0.35);
 }
 
 .table-wrap {
@@ -201,7 +206,7 @@ body {
 }
 
 .loot-guide-resize-handle:hover {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--accent-loot-guide-dim);
 }
 
 .loot-guide-drawer {
@@ -209,7 +214,7 @@ body {
   font-size: 1rem;
   line-height: 1;
   color: var(--text);
-  background: var(--surface);
+  background: var(--surface-loot-guide);
   border: 1px solid var(--border);
   cursor: pointer;
   outline: none;
@@ -222,7 +227,7 @@ body {
 
 .loot-guide-drawer:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 0 2px rgba(224, 217, 192, 0.35);
 }
 
 .loot-guide-drawer--tab {
@@ -235,6 +240,18 @@ body {
   border-radius: 6px 0 0 6px;
   border-right: none;
   z-index: 11;
+  color: var(--accent-loot-guide);
+  border-color: var(--border);
+}
+
+.loot-guide-drawer--tab:hover {
+  border-color: var(--accent-loot-guide);
+  color: var(--accent-loot-guide);
+}
+
+.loot-guide-drawer--tab:focus {
+  border-color: var(--accent-loot-guide);
+  box-shadow: 0 0 0 2px var(--accent-loot-guide-dim);
 }
 
 .loot-guide-drawer--on-panel {
@@ -247,14 +264,14 @@ body {
   border-radius: 6px 0 0 6px;
   border-right: none;
   border-left: 1px solid var(--border);
-  background: var(--header-bg);
-  color: var(--accent);
+  background: var(--surface-loot-guide);
+  color: var(--accent-loot-guide);
   z-index: 12;
 }
 
 .loot-guide-drawer--on-panel:hover {
   background: var(--bg);
-  color: var(--accent);
+  color: var(--accent-loot-guide);
 }
 
 .loot-guide-panel {
@@ -267,7 +284,7 @@ body {
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--surface-loot-guide);
 }
 
 .loot-guide-panel .table-wrap {
@@ -283,8 +300,8 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
-  background: var(--header-bg);
+  color: var(--accent-loot-guide);
+  background: var(--surface-loot-guide);
   border-bottom: 1px solid var(--border);
 }
 
@@ -292,7 +309,7 @@ body {
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid var(--border);
-  background: var(--header-bg);
+  background: var(--surface-loot-guide);
 }
 
 .loot-guide-panel__tab {
@@ -312,9 +329,9 @@ body {
 }
 
 .loot-guide-panel__tab--active {
-  color: var(--accent);
+  color: var(--accent-loot-guide);
   font-weight: 600;
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--accent-loot-guide);
 }
 
 .table {
@@ -349,7 +366,7 @@ body {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--accent);
   user-select: none;
   cursor: pointer;
   box-shadow: 0 1px 0 var(--border);
@@ -467,6 +484,25 @@ body {
   white-space: pre-line;
   overflow: visible;
   text-overflow: clip;
+}
+
+/* Looting guide panel: table header and accents use the cool blue */
+.loot-guide-panel .table th {
+  color: var(--accent-loot-guide);
+  background: var(--surface-loot-guide);
+}
+
+.loot-guide-panel .table th:hover {
+  color: var(--text);
+}
+
+.loot-guide-panel .table td {
+  background: var(--surface-loot-guide);
+}
+
+.loot-guide-panel .table td:first-child,
+.loot-guide-panel .table.table--with-selection td:nth-child(2) {
+  background-color: var(--surface-loot-guide);
 }
 
 .table td.empty {
