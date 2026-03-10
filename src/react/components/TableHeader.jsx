@@ -13,6 +13,7 @@ export function TableHeader({
       {showSelectionColumn && (
         <th
           key={SELECTION_COLUMN_ID}
+          className="col-selection"
           data-column={SELECTION_COLUMN_ID}
           title="Select"
           onClick={() => onSortChange(SELECTION_COLUMN_ID)}

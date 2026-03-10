@@ -16,8 +16,12 @@ export function Table({
   onSelectionToggle,
   showSelectionColumn = true,
 }) {
+  const tableClassName = ["table", showSelectionColumn ? "table--with-selection" : null]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <table id="table" className="table">
+    <table id="table" className={tableClassName}>
       <thead>
         <TableHeader
           columns={columns}

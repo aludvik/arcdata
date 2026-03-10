@@ -7,12 +7,15 @@
   --accent: #f59e0b;
   --header-bg: #12161d;
   --row-hover: rgba(245, 158, 11, 0.08);
-  /* Opaque equivalent of --row-hover on --surface, for sticky first column so nothing shows through */
+  /* Opaque equivalents for sticky columns so content scrolling underneath doesn't show through */
   --row-hover-solid: #272522;
+  --row-selected-solid: #2d2819;
   --row-selected: rgba(245, 158, 11, 0.18);
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
   /* Height of the app header (SearchBar) so the table header sticks below it */
   --app-header-height: 6rem;
+  /* Width of the selection (checkbox) column when shown, for sticky name column offset */
+  --selection-col-width: 2.75rem;
 }
 
 * {
@@ -288,7 +291,7 @@ body {
   color: var(--text);
 }
 
-/* First column fixed when scrolling horizontally */
+/* First column (selection when shown, else name) fixed when scrolling horizontally */
 .table th:first-child {
   left: 0;
   z-index: 6;
@@ -298,19 +301,61 @@ body {
 .table td:first-child {
   position: sticky;
   left: 0;
-  z-index: 1;
-  background: var(--surface);
+  z-index: 2;
+  background-color: var(--surface);
   box-shadow: 1px 0 0 var(--border);
 }
 
-.table tbody tr:hover td:first-child {
-  background: var(--row-hover-solid);
+/* When selection column is present, pin name column (second column) as well */
+.table.table--with-selection th:nth-child(2),
+.table.table--with-selection td:nth-child(2) {
+  position: sticky;
+  left: var(--selection-col-width);
+  z-index: 1;
+  background: var(--header-bg);
+  box-shadow: 1px 0 0 var(--border);
 }
 
-/* On narrow mobile portrait screens, shrink the first column a bit */
+.table.table--with-selection td:nth-child(2) {
+  background-color: var(--surface);
+  z-index: 1;
+}
+
+.table.table--with-selection th:nth-child(2) {
+  z-index: 6;
+}
+
+.table tbody tr:hover td:first-child,
+.table.table--with-selection tbody tr:hover td:nth-child(2) {
+  background-color: var(--row-hover-solid);
+}
+
+/* Sticky columns: use opaque backgrounds so scrolling content doesn't show through */
+.table tr.row-selected td:first-child,
+.table tr.row-selected:hover td:first-child,
+.table.table--with-selection tr.row-selected td:nth-child(2),
+.table.table--with-selection tr.row-selected:hover td:nth-child(2) {
+  background-color: var(--row-selected-solid);
+}
+
+/* Selection column: fixed width so name column sticky offset is correct */
+.table th.col-selection,
+.table td.col-selection {
+  width: var(--selection-col-width);
+  min-width: var(--selection-col-width);
+  max-width: var(--selection-col-width);
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+/* On narrow mobile portrait screens, shrink the name column a bit */
 @media (max-width: 600px) and (orientation: portrait) {
   .table th:first-child,
   .table td:first-child {
+    max-width: 200px;
+  }
+  .table.table--with-selection th:nth-child(2),
+  .table.table--with-selection td:nth-child(2) {
     max-width: 200px;
   }
 }

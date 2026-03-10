@@ -18,7 +18,7 @@ export function Row({
   return (
     <tr className={trClassName} onClick={onRowClick}>
       {onSelectionToggle != null ? (
-        <td onClick={(e) => e.stopPropagation()}>
+        <td className="col-selection" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSelected}
