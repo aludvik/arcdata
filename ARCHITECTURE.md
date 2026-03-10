@@ -141,5 +141,6 @@ This document describes the current architecture of the **Arc Raiders Item Brows
     - Structured reference fields (`recipe`, `recyclesInto`, `salvagesInto`, `upgradeCost`, `repairCost`) as objects keyed by item IDs with scalar payloads.
   - The app builds an item ID → localized name index from `items.json` at load time and uses it to render item reference fields.
   - `data/benches.json` – craft bench ID → localized name index used to render craft bench IDs as display names.
+- Search uses the **rendered** column value (the same text shown in each cell). For example, the `craftBench` column is matched by display name (e.g. "Gunsmith") rather than raw ID (e.g. "weapon_bench"), so a query like "weapon" does not match rows that display "Gunsmith". The searchable text is built via the same `formatCellValue` logic used for cell display.
 - Rendering rules for these structured fields (e.g. how to order entries, how to display quantities) are owned by the React components, not the build step.
 

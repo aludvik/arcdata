@@ -1,3 +1,7 @@
+import { formatCellValue } from "./components/cellValue.js";
+
+const SEARCH_COLUMNS = ["name", "type", "rarity", "craftBench"];
+
 export function rowSearchText(row, columns) {
   return columns
     .map((col) => {
@@ -12,7 +16,18 @@ export function rowSearchText(row, columns) {
     .toLowerCase();
 }
 
-export function filterItems(items, columns, keyword) {
+/**
+ * Build searchable text from rendered (display) values for the given row.
+ * Uses the same formatting as cell display so e.g. craftBench is searched as "Gunsmith" not "weapon_bench".
+ */
+export function rowSearchTextRendered(row, columns, idToName, benches) {
+  return columns
+    .map((col) => formatCellValue(row, col, idToName, benches).text)
+    .join(" ")
+    .toLowerCase();
+}
+
+export function filterItems(items, keyword, idToName, benches) {
   const terms = keyword
     .toLowerCase()
     .trim()
@@ -21,8 +36,13 @@ export function filterItems(items, columns, keyword) {
 
   if (terms.length === 0) return items;
 
+  const useRendered =
+    idToName != null && benches != null && typeof idToName === "object" && typeof benches === "object";
+
   return items.filter((row) => {
-    const text = rowSearchText(row, ["name", "type", "rarity", "craftBench"]);
+    const text = useRendered
+      ? rowSearchTextRendered(row, SEARCH_COLUMNS, idToName, benches)
+      : rowSearchText(row, SEARCH_COLUMNS);
     return terms.every((t) => text.includes(t));
   });
 }

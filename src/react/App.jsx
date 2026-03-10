@@ -237,8 +237,8 @@ export function App() {
   };
 
   const filteredItems = useMemo(
-    () => filterItems(items, columns, searchTerm),
-    [items, columns, searchTerm],
+    () => filterItems(items, searchTerm, idToName, benches),
+    [items, searchTerm, idToName, benches],
   );
 
   const sortedItems = useMemo(
