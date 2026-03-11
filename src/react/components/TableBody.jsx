@@ -10,10 +10,21 @@ export function TableBody({
   onRowExpandToggle,
   selectedItemIds = new Set(),
   onSelectionToggle,
+  showSelectionColumn = true,
 }) {
+  const colSpan = columns.length + (showSelectionColumn ? 1 : 0);
+
   return (
     <>
       {rows.map((row, index) => {
+        if (row._sectionLabel != null) {
+          return (
+            <tr key={`_divider-${row._sectionLabel}-${index}`} className="table-section-divider">
+              <td colSpan={colSpan}>{row._sectionLabel}</td>
+            </tr>
+          );
+        }
+
         const rowKey = row.id ?? index;
         const isExpanded =
           expandedRowKeys && typeof expandedRowKeys.includes === "function"

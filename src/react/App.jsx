@@ -102,7 +102,7 @@ export function App() {
         const validIds = new Set(itemsData.map((r) => r.id).filter(Boolean));
         const validRowKeys = new Set(itemsData.map((r, i) => r.id ?? i));
         const validColumns = new Set([...columnsData, SELECTION_COLUMN_ID]);
-        const validDagColumns = new Set(["names", "kind", "weight", "id"]);
+        const validDagColumns = new Set(["names", "weight", "id"]);
 
         setSelectedItemIds((prev) => {
           const filtered = [...prev].filter((id) => validIds.has(id));
@@ -262,29 +262,30 @@ export function App() {
 
   const dagRows = useMemo(() => {
     const KIND_ORDER = { basic: 0, intermediary: 1, selected: 2 };
+    const SECTION_LABELS = { basic: "Raw Materials", intermediary: "Craftables", selected: "Loadout" };
     const rows = craftingDag.map((node) => ({
       id: node.itemId,
       names: idToName[node.itemId] ?? node.itemId,
       kind: node.kind,
       weight: node.weight,
     }));
-    const dir = sortDirectionDag === "asc" ? 1 : -1;
-    return [...rows].sort((a, b) => {
-      if (sortColumnDag === "weight") {
-        const wCmp = Number(a.weight) - Number(b.weight);
-        if (wCmp !== 0) return dir * wCmp;
-        return (KIND_ORDER[a.kind] ?? 0) - (KIND_ORDER[b.kind] ?? 0);
-      }
-      if (sortColumnDag === "kind") {
-        const kA = KIND_ORDER[a.kind] ?? 0;
-        const kB = KIND_ORDER[b.kind] ?? 0;
-        if (kA !== kB) return dir * (kA - kB);
-        return dir * (Number(a.weight) - Number(b.weight));
-      }
-      const key = sortColumnDag === "names" ? "names" : "id";
-      return dir * String(a[key]).localeCompare(String(b[key]));
+    rows.sort((a, b) => {
+      const kA = KIND_ORDER[a.kind] ?? 0;
+      const kB = KIND_ORDER[b.kind] ?? 0;
+      if (kA !== kB) return kA - kB;
+      return Number(b.weight) - Number(a.weight);
     });
-  }, [craftingDag, idToName, sortColumnDag, sortDirectionDag]);
+    const withDividers = [];
+    let lastKind = null;
+    for (const row of rows) {
+      if (row.kind !== lastKind) {
+        lastKind = row.kind;
+        withDividers.push({ _sectionLabel: SECTION_LABELS[row.kind] });
+      }
+      withDividers.push(row);
+    }
+    return withDividers;
+  }, [craftingDag, idToName]);
 
   const showLootGuide = craftingDag.length > 0;
   const panelOpen = showLootGuide && lootGuideOpen;
@@ -418,7 +419,7 @@ export function App() {
               </div>
               <div className="table-wrap">
                 <Table
-                  columns={["kind", "names", "weight"]}
+                  columns={["names", "weight"]}
                   rows={dagRows}
                   sortColumn={sortColumnDag}
                   sortDirection={sortDirectionDag}

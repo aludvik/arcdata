@@ -43,6 +43,7 @@ export function Table({
           onRowExpandToggle={onRowExpandToggle}
           selectedItemIds={selectedItemIds}
           onSelectionToggle={onSelectionToggle}
+          showSelectionColumn={showSelectionColumn}
         />
       </tbody>
     </table>

@@ -27,12 +27,11 @@
     - Nodes sorted ascending from left/right or top/bottom according to the number of incoming edges
 
 Steps to build this feature
-- [ ] Label basic, intermediary, selected materials differently
 - [ ] Fix recycling / salvaging guide
 - [ ] Render the looting graph in the bottom panel
 - [ ] Label the looting graph edges with item quantities
-- [ ] Add export / import for saving / loading state
 ---
+- [x] Label basic, intermediary, selected materials differently
 - [x] Change color scheme, side panel color
 - [x] Move itemIdToName index generation to app
 - [x] Rename craftBenchIdToName.json to benches.json

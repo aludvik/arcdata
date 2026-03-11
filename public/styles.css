@@ -479,6 +479,18 @@ body {
   cursor: pointer;
 }
 
+.table tr.table-section-divider {
+  cursor: default;
+}
+
+.table tr.table-section-divider td {
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt, var(--surface));
+}
+
 .table tr.row-expanded td,
 .table td.cell-expanded {
   white-space: pre-line;
@@ -498,6 +510,12 @@ body {
 
 .loot-guide-panel .table td {
   background: var(--surface-loot-guide);
+}
+
+.loot-guide-panel .table tr.table-section-divider td {
+  background: var(--surface-loot-guide);
+  border-top-color: var(--accent-loot-guide);
+  color: var(--accent-loot-guide);
 }
 
 .loot-guide-panel .table td:first-child,
