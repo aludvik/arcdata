@@ -24,6 +24,11 @@ export function formatCellValue(row, col, idToName, benches, options = {}) {
       : { text: defaultValue, isEmpty: true };
   }
 
+  if (col === "kind" && typeof value === "string") {
+    const text = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    return { text, isEmpty: false };
+  }
+
   if (col === "craftBench") {
     const mapBenchId = (raw) => {
       const key = String(raw).trim();

@@ -60,6 +60,9 @@ function runTests() {
     [{ s: "A", w: 1 }],
     "C has incoming from A with weight 1",
   );
+  assert.strictEqual(nodeA.kind, "selected", "A has only outgoing edges");
+  assert.strictEqual(nodeB.kind, "basic", "B has only incoming edges");
+  assert.strictEqual(nodeC.kind, "basic", "C has only incoming edges");
   isDag(result);
 
   // Cycle breaking: A -> B -> C -> A
@@ -83,6 +86,7 @@ function runTests() {
   assert.strictEqual(result[0].itemId, "X", "node is X");
   assert.strictEqual(result[0].edges.length, 0, "no edges");
   assert.strictEqual(result[0].weight, 1, "X has no incoming edges");
+  assert.strictEqual(result[0].kind, "selected", "isolated start node is selected");
 
   result = buildCraftingDag({ A: { B: 1 } }, ["Y"]);
   assert.strictEqual(result.length, 1, "one node when start not in index");
@@ -112,6 +116,10 @@ function runTests() {
     [{ s: "B", w: 2 }, { s: "C", w: 1 }],
     "D has incoming from B and C",
   );
+  assert.strictEqual(nodeDagA.kind, "selected", "A has only outgoing");
+  assert.strictEqual(nodeDagB.kind, "intermediary", "B has incoming and outgoing");
+  assert.strictEqual(nodeDagC.kind, "intermediary", "C has incoming and outgoing");
+  assert.strictEqual(nodeDagD.kind, "basic", "D has only incoming");
   isDag(result);
 }
 

@@ -13,7 +13,7 @@ export function getDefaultState() {
     expandedRowKeys: [],
     selectedItemIds: [],
     lootGuideMode: "crafting",
-    sortColumnDag: "weight",
+    sortColumnDag: "kind",
     sortDirectionDag: "asc",
   };
 }
@@ -41,7 +41,7 @@ export function loadState() {
         parsed.lootGuideMode === "recycling" || parsed.lootGuideMode === "salvaging"
           ? parsed.lootGuideMode
           : "crafting",
-      sortColumnDag: typeof parsed.sortColumnDag === "string" ? parsed.sortColumnDag : "weight",
+      sortColumnDag: typeof parsed.sortColumnDag === "string" ? parsed.sortColumnDag : "kind",
       sortDirectionDag: parsed.sortDirectionDag === "desc" ? "desc" : "asc",
     };
   } catch {
@@ -67,7 +67,7 @@ export function saveState(state) {
           ? state.selectedItemIds
           : [],
       lootGuideMode: state.lootGuideMode ?? "crafting",
-      sortColumnDag: state.sortColumnDag ?? "weight",
+      sortColumnDag: state.sortColumnDag ?? "kind",
       sortDirectionDag: state.sortDirectionDag === "desc" ? "desc" : "asc",
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));

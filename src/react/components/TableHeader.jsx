@@ -7,6 +7,7 @@ export function TableHeader({
   sortDirection,
   onSortChange,
   showSelectionColumn = true,
+  sortable = true,
 }) {
   return (
     <tr>
@@ -16,38 +17,43 @@ export function TableHeader({
           className="col-selection"
           data-column={SELECTION_COLUMN_ID}
           title="Select"
-          onClick={() => onSortChange(SELECTION_COLUMN_ID)}
+          onClick={sortable ? () => onSortChange(SELECTION_COLUMN_ID) : undefined}
         >
-          <span
-            className={`sort-arrow${sortColumn === SELECTION_COLUMN_ID ? " visible" : ""}`}
-            aria-hidden="true"
-          >
-            {sortColumn === SELECTION_COLUMN_ID
-              ? sortDirection === "asc"
-                ? "↑"
-                : "↓"
-              : ""}
-          </span>
+          {sortable && (
+            <span
+              className={`sort-arrow${sortColumn === SELECTION_COLUMN_ID ? " visible" : ""}`}
+              aria-hidden="true"
+            >
+              {sortColumn === SELECTION_COLUMN_ID
+                ? sortDirection === "asc"
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </span>
+          )}
         </th>
       )}
       {columns.map((col) => {
         const isSorted = sortColumn === col;
         const arrow = isSorted ? (sortDirection === "asc" ? "↑" : "↓") : "";
+        const label = col === "kind" ? "Kind" : col;
 
         return (
           <th
             key={col}
             data-column={col}
-            title={col}
-            onClick={() => onSortChange(col)}
+            title={label}
+            onClick={sortable ? () => onSortChange(col) : undefined}
           >
-            {col}
-            <span
-              className={`sort-arrow${isSorted ? " visible" : ""}`}
-              aria-hidden="true"
-            >
-              {arrow}
-            </span>
+            {label}
+            {sortable && (
+              <span
+                className={`sort-arrow${isSorted ? " visible" : ""}`}
+                aria-hidden="true"
+              >
+                {arrow}
+              </span>
+            )}
           </th>
         );
       })}

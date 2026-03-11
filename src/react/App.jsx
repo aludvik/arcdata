@@ -47,7 +47,9 @@ export function App() {
   );
   const [lootGuideMode, setLootGuideMode] = useState(initialState.lootGuideMode);
   const [lootGuideOpen, setLootGuideOpen] = useState(true);
-  const [lootGuideWidth, setLootGuideWidth] = useState(320);
+  const [lootGuideWidth, setLootGuideWidth] = useState(
+    () => (typeof window !== "undefined" ? Math.round(window.innerWidth / 3) : 320),
+  );
   const [craftingDag, setCraftingDag] = useState(() => []);
   const [sortColumnDag, setSortColumnDag] = useState(initialState.sortColumnDag);
   const [sortDirectionDag, setSortDirectionDag] = useState(initialState.sortDirectionDag);
@@ -100,7 +102,7 @@ export function App() {
         const validIds = new Set(itemsData.map((r) => r.id).filter(Boolean));
         const validRowKeys = new Set(itemsData.map((r, i) => r.id ?? i));
         const validColumns = new Set([...columnsData, SELECTION_COLUMN_ID]);
-        const validDagColumns = new Set(["names", "weight", "id"]);
+        const validDagColumns = new Set(["names", "kind", "weight", "id"]);
 
         setSelectedItemIds((prev) => {
           const filtered = [...prev].filter((id) => validIds.has(id));
@@ -114,7 +116,7 @@ export function App() {
           prev != null && validColumns.has(prev) ? prev : null,
         );
         setSortColumnDag((prev) =>
-          validDagColumns.has(prev) ? prev : "weight",
+          validDagColumns.has(prev) ? prev : "kind",
         );
 
         setError(null);
@@ -259,14 +261,24 @@ export function App() {
   const filteredCount = filteredItems.length;
 
   const dagRows = useMemo(() => {
+    const KIND_ORDER = { basic: 0, intermediary: 1, selected: 2 };
     const rows = craftingDag.map((node) => ({
       id: node.itemId,
       names: idToName[node.itemId] ?? node.itemId,
+      kind: node.kind,
       weight: node.weight,
     }));
     const dir = sortDirectionDag === "asc" ? 1 : -1;
     return [...rows].sort((a, b) => {
       if (sortColumnDag === "weight") {
+        const wCmp = Number(a.weight) - Number(b.weight);
+        if (wCmp !== 0) return dir * wCmp;
+        return (KIND_ORDER[a.kind] ?? 0) - (KIND_ORDER[b.kind] ?? 0);
+      }
+      if (sortColumnDag === "kind") {
+        const kA = KIND_ORDER[a.kind] ?? 0;
+        const kB = KIND_ORDER[b.kind] ?? 0;
+        if (kA !== kB) return dir * (kA - kB);
         return dir * (Number(a.weight) - Number(b.weight));
       }
       const key = sortColumnDag === "names" ? "names" : "id";
@@ -406,7 +418,7 @@ export function App() {
               </div>
               <div className="table-wrap">
                 <Table
-                  columns={["names", "weight"]}
+                  columns={["kind", "names", "weight"]}
                   rows={dagRows}
                   sortColumn={sortColumnDag}
                   sortDirection={sortDirectionDag}
@@ -416,6 +428,7 @@ export function App() {
                   expandedRowKeys={[]}
                   onRowExpandToggle={() => {}}
                   showSelectionColumn={false}
+                  sortable={false}
                 />
               </div>
             </div>

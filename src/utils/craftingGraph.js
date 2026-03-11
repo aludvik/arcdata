@@ -5,7 +5,7 @@
  * @param {Record<string, Record<string, number>>} index - Map of item ID to
  *   object mapping target item IDs to numeric weights (e.g. recipe, recyclesInto, salvagesInto).
  * @param {Iterable<string>} startItemIds - Item IDs to use as starting nodes.
- * @returns {{ itemId: string, edges: { targetItemId: string, weight: number }[], incomingEdges: { sourceId: string, weight: number }[], weight: number }[]}
+ * @returns {{ itemId: string, edges: { targetItemId: string, weight: number }[], incomingEdges: { sourceId: string, weight: number }[], weight: number, kind: 'selected'|'intermediary'|'basic' }[]}
  */
 export function buildCraftingDag(index, startItemIds) {
   const startIds = Array.from(startItemIds, (id) => String(id));
@@ -101,10 +101,25 @@ export function buildCraftingDag(index, startItemIds) {
     }
   }
 
-  return nodeList.map((itemId) => ({
-    itemId,
-    edges: outgoingEdgesMap.get(itemId) ?? [],
-    incomingEdges: incomingEdgesMap.get(itemId) ?? [],
-    weight: nodeWeights.get(itemId) ?? 1,
-  }));
+  return nodeList.map((itemId) => {
+    const outgoing = outgoingEdgesMap.get(itemId) ?? [];
+    const incoming = incomingEdgesMap.get(itemId) ?? [];
+    const hasOutgoing = outgoing.length > 0;
+    const hasIncoming = incoming.length > 0;
+    let kind;
+    if (!hasIncoming) {
+      kind = "selected";
+    } else if (hasOutgoing) {
+      kind = "intermediary";
+    } else {
+      kind = "basic";
+    }
+    return {
+      itemId,
+      edges: outgoing,
+      incomingEdges: incoming,
+      weight: nodeWeights.get(itemId) ?? 1,
+      kind,
+    };
+  });
 }

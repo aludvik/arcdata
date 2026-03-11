@@ -15,6 +15,7 @@ export function Table({
   selectedItemIds,
   onSelectionToggle,
   showSelectionColumn = true,
+  sortable = true,
 }) {
   const tableClassName = ["table", showSelectionColumn ? "table--with-selection" : null]
     .filter(Boolean)
@@ -29,6 +30,7 @@ export function Table({
           sortDirection={sortDirection}
           onSortChange={onSortChange}
           showSelectionColumn={showSelectionColumn}
+          sortable={sortable}
         />
       </thead>
       <tbody>
