@@ -236,7 +236,7 @@ body {
   right: 0;
   transform: translateY(-50%);
   width: 18px;
-  padding: 0.5rem 0.2rem;
+  padding: 1rem 0.2rem;
   border-radius: 6px 0 0 6px;
   border-right: none;
   z-index: 11;
@@ -260,7 +260,7 @@ body {
   right: var(--loot-guide-width, 320px);
   transform: translateY(-50%);
   width: 18px;
-  padding: 0.5rem 0.2rem;
+  padding: 1rem 0.2rem;
   border-radius: 6px 0 0 6px;
   border-right: none;
   border-left: 1px solid var(--border);
