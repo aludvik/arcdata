@@ -527,6 +527,12 @@ body {
   border-top-color: var(--accent-loot-guide);
   color: var(--accent-loot-guide);
 }
+.loot-guide-panel .table tr.table-section-divider td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  box-shadow: 1px 0 0 var(--border);
+}
 
 .loot-guide-panel .table td:first-child,
 .loot-guide-panel .table.table--with-selection td:nth-child(2) {

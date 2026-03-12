@@ -20,7 +20,8 @@ export function TableBody({
         if (row._sectionLabel != null) {
           return (
             <tr key={`_divider-${row._sectionLabel}-${index}`} className="table-section-divider">
-              <td colSpan={colSpan}>{row._sectionLabel}</td>
+              <td>{row._sectionLabel}</td>
+              <td colSpan={colSpan - 1} />
             </tr>
           );
         }
