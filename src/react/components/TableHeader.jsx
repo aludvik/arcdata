@@ -36,7 +36,7 @@ export function TableHeader({
       {columns.map((col) => {
         const isSorted = sortColumn === col;
         const arrow = isSorted ? (sortDirection === "asc" ? "↑" : "↓") : "";
-        const label = col === "kind" ? "Kind" : col;
+        const label = col;
 
         return (
           <th

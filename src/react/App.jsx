@@ -105,7 +105,7 @@ export function App() {
         const validIds = new Set(itemsData.map((r) => r.id).filter(Boolean));
         const validRowKeys = new Set(itemsData.map((r, i) => r.id ?? i));
         const validColumns = new Set([...columnsData, SELECTION_COLUMN_ID]);
-        const validDagColumns = new Set(["names", "weight", "recipe", "id"]);
+        const validDagColumns = new Set(["names", "qty", "recipe", "id"]);
 
         setSelectedItemIds((prev) => {
           const filtered = [...prev].filter((id) => validIds.has(id));
@@ -271,14 +271,14 @@ export function App() {
       id: node.itemId,
       names: idToName[node.itemId] ?? node.itemId,
       kind: node.kind,
-      weight: node.weight,
+      qty: node.weight,
       recipe: idToRecipe[node.itemId],
     }));
     rows.sort((a, b) => {
       const kA = KIND_ORDER[a.kind] ?? 0;
       const kB = KIND_ORDER[b.kind] ?? 0;
       if (kA !== kB) return kA - kB;
-      return Number(b.weight) - Number(a.weight);
+      return Number(b.qty) - Number(a.qty);
     });
     const withDividers = [];
     let lastKind = null;
@@ -426,7 +426,7 @@ export function App() {
               )}
               <div className="table-wrap">
                 <Table
-                  columns={["names", "weight", "recipe"]}
+                  columns={["names", "qty", "recipe"]}
                   rows={dagRows}
                   sortColumn={sortColumnDag}
                   sortDirection={sortDirectionDag}
