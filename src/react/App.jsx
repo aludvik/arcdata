@@ -5,6 +5,9 @@ import { detectNumericColumns, filterItems, sortRows, SELECTION_COLUMN_ID, augme
 import { buildCraftingDag } from "../utils/craftingGraph.js";
 import { getDefaultState, loadState, saveState } from "./persistence.js";
 
+/** Set to true to show Crafting / Recycling / Salvaging tabs in the Looting Guide. */
+const LOOT_GUIDE_TABS_ENABLED = false;
+
 /**
  * Build an index mapping item ID -> value for a given field. Only includes rows
  * where id and the field are present and the field is a plain object (not array).
@@ -155,7 +158,8 @@ export function App() {
   ]);
 
   const lootGuideIndex = useMemo(() => {
-    switch (lootGuideMode) {
+    const mode = LOOT_GUIDE_TABS_ENABLED ? lootGuideMode : "crafting";
+    switch (mode) {
       case "recycling":
         return idToRecyclesInto;
       case "salvaging":
@@ -388,6 +392,7 @@ export function App() {
                 </button>
                 <div className="loot-guide-panel">
                   <h2 className="loot-guide-panel__title">Looting Guide</h2>
+              {LOOT_GUIDE_TABS_ENABLED && (
               <div className="loot-guide-panel__tabs" role="tablist">
                 <button
                   type="button"
@@ -417,6 +422,7 @@ export function App() {
                   Salvaging
                 </button>
               </div>
+              )}
               <div className="table-wrap">
                 <Table
                   columns={["names", "weight"]}
