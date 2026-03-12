@@ -304,7 +304,7 @@ export function App() {
     resizeStartWidth.current = lootGuideWidth;
     const onMove = (moveEvent) => {
       const delta = resizeStartX.current - moveEvent.clientX;
-      const newWidth = Math.min(800, Math.max(200, resizeStartWidth.current + delta));
+      const newWidth = Math.max(200, resizeStartWidth.current + delta);
       setLootGuideWidth(newWidth);
     };
     const onUp = () => {

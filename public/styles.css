@@ -512,6 +512,16 @@ body {
   background: var(--surface-loot-guide);
 }
 
+.loot-guide-panel .table td, th {
+  width: min-content;
+  max-width: min-content;
+}
+
+.loot-guide-panel .table td:last-child, th:last-child {
+  width: auto;
+  max-width: auto;
+}
+
 .loot-guide-panel .table tr.table-section-divider td {
   background: var(--surface-loot-guide);
   border-top-color: var(--accent-loot-guide);
