@@ -105,7 +105,7 @@ export function App() {
         const validIds = new Set(itemsData.map((r) => r.id).filter(Boolean));
         const validRowKeys = new Set(itemsData.map((r, i) => r.id ?? i));
         const validColumns = new Set([...columnsData, SELECTION_COLUMN_ID]);
-        const validDagColumns = new Set(["names", "weight", "id"]);
+        const validDagColumns = new Set(["names", "weight", "recipe", "id"]);
 
         setSelectedItemIds((prev) => {
           const filtered = [...prev].filter((id) => validIds.has(id));
@@ -272,6 +272,7 @@ export function App() {
       names: idToName[node.itemId] ?? node.itemId,
       kind: node.kind,
       weight: node.weight,
+      recipe: idToRecipe[node.itemId],
     }));
     rows.sort((a, b) => {
       const kA = KIND_ORDER[a.kind] ?? 0;
@@ -289,7 +290,7 @@ export function App() {
       withDividers.push(row);
     }
     return withDividers;
-  }, [craftingDag, idToName]);
+  }, [craftingDag, idToName, idToRecipe]);
 
   const showLootGuide = craftingDag.length > 0;
   const panelOpen = showLootGuide && lootGuideOpen;
@@ -425,7 +426,7 @@ export function App() {
               )}
               <div className="table-wrap">
                 <Table
-                  columns={["names", "weight"]}
+                  columns={["names", "weight", "recipe"]}
                   rows={dagRows}
                   sortColumn={sortColumnDag}
                   sortDirection={sortDirectionDag}
